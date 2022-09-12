@@ -64,7 +64,7 @@ class QuickResponse(commands.Cog):
                     # send the response from the guild's responses
                     await ctx.channel.send(self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"][trigger])
 
-    @PhraseQuickResponseSlashGroup.command(description="add/set a phrase response")
+    @PhraseQuickResponseSlashGroup.command(description="Add/set a phrase response")
     async def add(self, ctx, phrase: str, response: str):
         self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"].update({phrase: response})
         with open('db/QuickResponses.json', 'w') as f:
@@ -72,21 +72,21 @@ class QuickResponse(commands.Cog):
         await ctx.respond("Done!")
         
     # I know this is the second function called add, it works though...
-    @MessageQuickResponseSlashGroup.command(description="add/set a message response")
+    @MessageQuickResponseSlashGroup.command(description="Add/set a message response")
     async def add(self, ctx, message: str, response: str):
         self.QuickResponses[str(ctx.guild.id)]["MessageResponses"].update({message: response})
         with open('db/QuickResponses.json', 'w') as f:
             f.write(json.dumps(self.QuickResponses, indent=4))
         await ctx.respond("Done!")
 
-    @MessageQuickResponseSlashGroup.command(description="remove a message response")
+    @MessageQuickResponseSlashGroup.command(description="Remove a message response")
     async def remove(self, ctx, message: str):
         self.QuickResponses[str(ctx.guild.id)]["MessageResponses"].pop(message)
         with open('db/QuickResponses.json', 'w') as f:
             f.write(json.dumps(self.QuickResponses, indent=4))
         await ctx.respond("Done!")
 
-    @PhraseQuickResponseSlashGroup.command(description="remove a phrase response")
+    @PhraseQuickResponseSlashGroup.command(description="Remove a phrase response")
     async def remove(self, ctx, phrase: str):
         self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"].pop(phrase)
         with open('db/QuickResponses.json', 'w') as f:
