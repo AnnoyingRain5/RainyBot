@@ -9,7 +9,7 @@ COPY . .
 
 RUN touch .env
 RUN mkdir db
-RUN echo "{}" > db/translator.json
+RUN echo "{}" > db/Translator.json
 RUN echo "{}" > db/QuickResponses.json
 
 CMD [ "python3", "./bot.py"]
