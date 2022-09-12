@@ -31,7 +31,10 @@ The bot is currently under **heavy** development, so some features may break, an
 
 If you would like to self-host this bot, that's fine! You'll just need python 3.10 (other versions may work, but I am testing on 3.10) and the following pip packages:
 
-* py-cord
-* googletrans==4.0.0rc1
+* `py-cord`
+* `googletrans==4.0.0rc1`
 
 Note that the exact version of googletrans is *very* important, the stable release does *not* work.
+
+You will also need to make a folder called `db` and two json files called `Translator.json` and `QuickResponses.json`. Each file should only contain `{}`.
+This is just to initialize the bot's database.
