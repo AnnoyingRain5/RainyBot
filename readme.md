@@ -42,3 +42,5 @@ This is just to initialize the bot's database.
 ### Docker Self-Hosting:
 
 If you would like to selfhost using docker, just use the supplied dockerfile, and pass it the `TOKEN` environment variable
+
+Alternatively, you can pull an image from dockerhub using `docker pull annoyingrains/rainybot`
