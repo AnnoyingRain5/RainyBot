@@ -8,5 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN touch .env
+RUN mkdir db
+RUN echo "{}" > db/translator.json
+RUN echo "{}" > db/QuickResponses.json
 
 CMD [ "python3", "./bot.py"]
