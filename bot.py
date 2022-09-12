@@ -11,7 +11,7 @@ intents += discord.Intents.message_content
 
 bot = discord.Bot(intents=intents)
 
-AdminSlashGroup = SlashCommandGroup("admin", "Commands for the bot owner to use... and no one else!")
+AdminSlashGroup = bot.create_group("admin", "Commands for the bot owner to use... and no one else!")
 
 @bot.event
 async def on_ready():
