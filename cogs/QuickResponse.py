@@ -23,6 +23,21 @@ class QuickResponse(commands.Cog):
                     }
                 )
 
+    @commands.Cog.listener
+    async def on_guild_join(self, guild):
+        if guild.id not in self.QuickResponses: # if the server isnt already in the database
+            # generate empty template
+            self.QuickResponses.update(
+                {
+                    guild.id: {
+                        # use empty values as its impossible to send an empty message
+                        "PhraseResponses": {"", ""},
+                        "MessageResponses": {"": ""}
+                    }
+                }
+            )
+        
+    
     @commands.Cog.listener()
     async def on_message(self, ctx):
         # message responses
