@@ -37,7 +37,6 @@ class Translator(commands.Cog):
             )
         with open('db/Translator.json', 'w') as f:
             f.write(json.dumps(self.database, indent=4))
-        print(self.bot.guilds)
         
     @commands.Cog.listener()
     async def on_ready(self):
@@ -46,7 +45,6 @@ class Translator(commands.Cog):
         for guild in self.bot.guilds:
             # if the server does not have any ChannelGroups
             if str(guild.id) not in self.database:
-                print(f"{guild.id} not in database")
                 # generate empty template
                 self.database.update(
                     {
