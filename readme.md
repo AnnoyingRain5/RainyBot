@@ -1,4 +1,4 @@
-## RainyBot
+# RainyBot
 
 My personal Discord bot!
 
@@ -6,7 +6,7 @@ Rainybot is a fully modular discord bot using the Pycord (discord.py) cogs syste
 
 Modules can be added and removed at any time (and even at runtime using owner-only commands) without disrupting the rest of the bot!
 
-# Features:
+## Features:
 
 * QuickResponse:
 
@@ -23,11 +23,11 @@ The bot uses webhook profile picture and name syncing to make the experience (al
 
 The bot has some basic admininstration commands to load, unload and reload cogs.
 
-# Note:
+## Note:
 
 The bot is currently under **heavy** development, so some features may break, and some aspects (especially the translator) are not user friendly.
 
-# Self-Hosting:
+## Self-Hosting:
 
 If you would like to self-host this bot, that's fine! You'll just need python 3.10 (other versions may work, but I am testing on 3.10) and the following pip packages:
 
