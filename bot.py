@@ -11,14 +11,13 @@ intents += discord.Intents.message_content
 
 bot = discord.Bot(intents=intents)
 
-AdminSlashGroup = bot.create_group("admin", "Commands for the bot owner to use... and no one else!")
 
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.change_presence(activity=discord.Game(name="with Rains' emotions!"))
 
-@AdminSlashGroup.command(description="load cog")
+@bot.slash_command(description="load cog")
 async def load(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
@@ -29,7 +28,7 @@ async def load(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
     
-@AdminSlashGroup.command()
+@bot.slash_command()
 async def unload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
@@ -40,7 +39,7 @@ async def unload(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
-@AdminSlashGroup.command()
+@bot.slash_command()
 async def reload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
