@@ -51,6 +51,16 @@ async def reload(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
+@bot.slash_command(description="List the cogs that are currently loaded")
+async def listcogs(ctx):
+    if await bot.is_owner(ctx.author):
+        response = ""
+        for item in bot.extensions.keys():
+            response += item + ", "
+        await ctx.respond(response)
+    else:
+        await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
+
 # load all cogs
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
