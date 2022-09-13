@@ -17,7 +17,7 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.change_presence(activity=discord.Game(name="with Rains' emotions!"))
 
-@bot.slash_command(description="load cog")
+@bot.slash_command(description="Load cog")
 async def load(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
@@ -28,7 +28,7 @@ async def load(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
     
-@bot.slash_command()
+@bot.slash_command(description="Rnload cog")
 async def unload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
@@ -39,7 +39,7 @@ async def unload(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
-@bot.slash_command()
+@bot.slash_command(description="Reload cog")
 async def reload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
