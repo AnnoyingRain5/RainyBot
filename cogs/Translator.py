@@ -7,9 +7,6 @@ from discord.commands import SlashCommandGroup
 from discord.ext import commands
 from lib.DatabaseManager import Database
 
-intents = discord.Intents.default()
-intents.message_content = True
-
 translator = googletrans.Translator()
 GuildToChannelGroupList = {}
 
