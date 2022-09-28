@@ -36,9 +36,6 @@ If you would like to self-host this bot, that's fine! You'll just need python 3.
 
 Note that the exact version of googletrans is *very* important, the stable release does *not* work.
 
-You will also need to make a folder called `db` and two json files called `Translator.json` and `QuickResponses.json`. Each file should only contain `{}`.
-This is just to initialize the bot's database.
-
 ### Docker Self-Hosting:
 
 If you would like to selfhost using docker, just use the supplied dockerfile, and pass it the `TOKEN` environment variable
