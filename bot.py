@@ -61,6 +61,10 @@ async def listcogs(ctx):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
+@bot.slash_command(description="Ping the bot!")
+async def ping(ctx):
+    await ctx.respond(f"Pong! Bot latency is: `{round(bot.latency*1000)}ms`")
+
 # load all cogs
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
