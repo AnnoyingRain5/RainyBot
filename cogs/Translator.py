@@ -5,6 +5,7 @@ import googletrans
 import json
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
+from discord.ext.commands import has_permissions, CheckFailure
 from lib.DatabaseManager import Database
 
 translator = googletrans.Translator()
@@ -32,6 +33,7 @@ class Translator(commands.Cog):
                     }
                 }
             )
+    
         
     @commands.Cog.listener()
     async def on_ready(self):
@@ -63,6 +65,7 @@ class Translator(commands.Cog):
                             print(f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
                             await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url)
 
+    @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
     #adding a default value makes parameter optional
     async def create(self, ctx, channel1, channel1language, channel1webhook, channel2, channel2language, channel2webhook,
@@ -76,10 +79,22 @@ class Translator(commands.Cog):
         self.db.save()
         await ctx.respond("Channel group created!")
 
+    @create.error
+    async def create_error(self, ctx, error):
+        if isinstance(error, CheckFailure):
+            await ctx.respond("Admininstrator permissions are required to run this command.")
+    
+    @has_permissions(administrator=True)
     @TranslatorSlashGroup.command(description="Display the server config JSON")
     async def viewserverconfig(self, ctx):
         await ctx.respond(f"```json\n\n{json.dumps(self.db.read()[str(ctx.guild.id)], indent=4)}\n```")
-        
+    
+    @viewserverconfig.error
+    async def viewserverconfig_error(self, ctx, error):
+        if isinstance(error, CheckFailure):
+            await ctx.respond("Admininstrator permissions are required to run this command.")
+    
+    @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Remove a channel group")
     async def remove(self, ctx, channelgroupid: int):
         if channelgroupid == 0:
@@ -88,5 +103,11 @@ class Translator(commands.Cog):
             self.db.db[str(ctx.guild.id)]["ChannelGroups"].pop(str(channelgroupid))
             self.db.save()
             await ctx.respond("Done!")
+            
+    @remove.error
+    async def remove_error(self, ctx, error):
+        if isinstance(error, CheckFailure):
+            await ctx.respond("Admininstrator permissions are required to run this command.")
+            
 def setup(bot):
     bot.add_cog(Translator(bot))
