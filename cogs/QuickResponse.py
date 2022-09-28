@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import json
 from discord.commands import SlashCommandGroup
+from  lib.DatabaseManager import Database
 
 class QuickResponse(commands.Cog):
     def __init__(self, bot):
@@ -12,32 +13,27 @@ class QuickResponse(commands.Cog):
     
     @commands.Cog.listener()
     async def on_ready(self):
-        with open('db/QuickResponses.json', 'r') as f:
-            self.QuickResponses = json.loads(f.read())
+        self.db = Database("QuickResponses")
         for guild in self.bot.guilds:
             # if the server does not have any QuickResponses
-            if str(guild.id) not in self.QuickResponses:
+            if str(guild.id) not in self.db.read():
                 # generate empty template
-                self.QuickResponses.update(
+                self.db.update(
                     {
                         guild.id: {
                             # use empty values as its impossible to send an empty message
                             "PhraseResponses": {"": ""},
                             "MessageResponses": {"": ""}
+                            }
                         }
-                    }    
-                )
-                with open('db/QuickResponses.json', 'w') as f:
-                    f.write(json.dumps(self.QuickResponses, indent=4))
-                # I have no idea why this works...
-                with open('db/QuickResponses.json', 'r') as f:
-                    self.QuickResponses = json.loads(f.read())
+                    )
+
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if guild.id not in self.QuickResponses: # if the server isnt already in the database
             # generate empty template
-            self.QuickResponses.update(
+            self.db.update(
                 {
                     guild.id: {
                         # use empty values as its impossible to send an empty message
@@ -53,44 +49,41 @@ class QuickResponse(commands.Cog):
         # message responses
         if ctx.author == self.bot.user:  # ignore all messages by this bot
             return
-        if ctx.content in self.QuickResponses[str(ctx.guild.id)]["MessageResponses"]:
+        if ctx.content in self.db.read()[str(ctx.guild.id)]["MessageResponses"]:
             # send the response from the guild's responses
-            await ctx.channel.send(self.QuickResponses[str(ctx.guild.id)]["MessageResponses"][ctx.content])
+            await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["MessageResponses"][ctx.content])
 
         # phrase responses
-        for trigger in self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"]:
+        for trigger in self.db.read()[str(ctx.guild.id)]["PhraseResponses"]:
             if trigger != "":
                 if trigger in ctx.content:
                     # send the response from the guild's responses
-                    await ctx.channel.send(self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"][trigger])
+                    await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["PhraseResponses"][trigger])
 
     @PhraseQuickResponseSlashGroup.command(description="Add/set a phrase response")
     async def add(self, ctx, phrase: str, response: str):
-        self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"].update({phrase: response})
-        with open('db/QuickResponses.json', 'w') as f:
-            f.write(json.dumps(self.QuickResponses, indent=4))
+        self.db.db[str(ctx.guild.id)]["PhraseResponses"].update({phrase: response})
+        self.db.save()
         await ctx.respond("Done!")
         
     # I know this is the second function called add, it works though...
     @MessageQuickResponseSlashGroup.command(description="Add/set a message response")
     async def add(self, ctx, message: str, response: str):
-        self.QuickResponses[str(ctx.guild.id)]["MessageResponses"].update({message: response})
-        with open('db/QuickResponses.json', 'w') as f:
-            f.write(json.dumps(self.QuickResponses, indent=4))
+        print(self.db.db)
+        self.db.db[str(ctx.guild.id)]["MessageResponses"].update({message: response})
+        self.db.save()
         await ctx.respond("Done!")
 
     @MessageQuickResponseSlashGroup.command(description="Remove a message response")
     async def remove(self, ctx, message: str):
-        self.QuickResponses[str(ctx.guild.id)]["MessageResponses"].pop(message)
-        with open('db/QuickResponses.json', 'w') as f:
-            f.write(json.dumps(self.QuickResponses, indent=4))
+        self.db.db[str(ctx.guild.id)]["MessageResponses"].pop(message)
+        self.db.save()
         await ctx.respond("Done!")
 
     @PhraseQuickResponseSlashGroup.command(description="Remove a phrase response")
     async def remove(self, ctx, phrase: str):
-        self.QuickResponses[str(ctx.guild.id)]["PhraseResponses"].pop(phrase)
-        with open('db/QuickResponses.json', 'w') as f:
-            f.write(json.dumps(self.QuickResponses, indent=4))
+        self.db.db[str(ctx.guild.id)]["PhraseResponses"].pop(phrase)
+        self.db.save()
         await ctx.respond("Done!")
 
 def setup(bot):
