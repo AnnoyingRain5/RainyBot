@@ -65,6 +65,10 @@ async def listcogs(ctx):
 async def ping(ctx):
     await ctx.respond(f"Pong! Bot latency is: `{round(bot.latency*1000)}ms`")
 
+@bot.slash_command(description="Get the link to the bot's source code!")
+async def github(ctx):
+    await ctx.respond("https://github.com/AnnoyingRain5/RainyBot")
+
 # load all cogs
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
