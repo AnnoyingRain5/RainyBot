@@ -28,7 +28,7 @@ class Translator(commands.Cog):
             self.db.update(
                 {
                     guild.id: {
-                        "ChannelGroups": {"0", {"": ""}},
+                        "ChannelGroups": {"0": {"": ""}},
                         "webhooks": {"": ""}
                     }
                 }

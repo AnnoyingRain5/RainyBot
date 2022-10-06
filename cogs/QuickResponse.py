@@ -32,7 +32,7 @@ class QuickResponse(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        if guild.id not in self.QuickResponses: # if the server isnt already in the database
+        if guild.id not in self.db.read(): # if the server isnt already in the database
             # generate empty template
             self.db.update(
                 {
