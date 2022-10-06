@@ -93,6 +93,10 @@ class Translator(commands.Cog):
     async def viewserverconfig_error(self, ctx, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
+            
+    @TranslatorSlashGroup.command(description="Learn how to use the Translator feature")
+    async def tutorial(self, ctx):
+        await ctx.respond(f"Check out the tutorial here:\nhttps://github.com/AnnoyingRain5/RainyBot/wiki/Translator")
     
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Remove a channel group")
