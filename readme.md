@@ -19,6 +19,8 @@ and have up to 5 of them synced together.
 
 The bot uses webhook profile picture and name syncing to make the experience (almost) seamless between channels!
 
+A tutorial on how to use this feature can be found in the [Github Wiki](https://github.com/AnnoyingRain5/RainyBot/wiki/Translator)
+
 * Admin commands:
 
 The bot has some basic admininstration commands to load, unload and reload cogs.
