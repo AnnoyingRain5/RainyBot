@@ -1,6 +1,4 @@
-import discord
 from discord.ext import commands
-import json
 from discord.commands import SlashCommandGroup
 from  lib.DatabaseManager import Database
 from discord.ext.commands import has_permissions, CheckFailure

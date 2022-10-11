@@ -1,5 +1,4 @@
 from discord import Webhook
-import discord
 import aiohttp
 import googletrans
 import json
