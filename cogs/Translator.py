@@ -59,12 +59,17 @@ class Translator(commands.Cog):
                     for channel in ChannelGroup:
                         if channel != str(ctx.channel.id) and channel != "0": # dont send the message in its own channel, and dont send it to ID 0
                             webhook = Webhook.from_url(self.db.read()[str(ctx.guild.id)]["webhooks"][str(channel)], session=self.session)
+                            # Get the attachments
+                            attachments = []
+                            for attachment in ctx.attachments:
+                                attachments.append(await attachment.to_file())
+                            if ctx.content == "": # if the message is empty (only attachments)
+                                await webhook.send(content="", username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
                             SourceLang = ChannelGroup[str(ctx.channel.id)] # language of the channel the original message was in
                             DestinationLang = ChannelGroup[str(channel)] # language of the current channel in the ChannelGroup
                             TranslatedText = translator.translate(ctx.content, DestinationLang, SourceLang).text
                             print(f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
-                            await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url)
-
+                            await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
     #adding a default value makes parameter optional
