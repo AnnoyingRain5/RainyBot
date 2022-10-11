@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from discord.commands import SlashCommandGroup
 
-load_dotenv() # load env vars from file
+load_dotenv()  # load env vars from file
 
 # set up intents
 intents = discord.Intents.default()
@@ -17,6 +17,7 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.change_presence(activity=discord.Game(name="with Rains' emotions!"))
 
+
 @bot.slash_command(description="Load cog")
 async def load(ctx, cog: str):
     if await bot.is_owner(ctx.author):
@@ -27,7 +28,8 @@ async def load(ctx, cog: str):
             await ctx.respond(f"Failed to load cog `{cog}`...")
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
-    
+
+
 @bot.slash_command(description="Rnload cog")
 async def unload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
@@ -38,6 +40,7 @@ async def unload(ctx, cog: str):
             await ctx.respond(f"Failed to unload cog `{cog}`...")
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
+
 
 @bot.slash_command(description="Reload cog")
 async def reload(ctx, cog: str):
@@ -51,6 +54,7 @@ async def reload(ctx, cog: str):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
+
 @bot.slash_command(description="List the cogs that are currently loaded")
 async def listcogs(ctx):
     if await bot.is_owner(ctx.author):
@@ -61,9 +65,11 @@ async def listcogs(ctx):
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
+
 @bot.slash_command(description="Ping the bot!")
 async def ping(ctx):
     await ctx.respond(f"Pong! Bot latency is: `{round(bot.latency*1000)}ms`")
+
 
 @bot.slash_command(description="Get the link to the bot's source code!")
 async def github(ctx):
@@ -72,6 +78,7 @@ async def github(ctx):
 # load all cogs
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}') # remove file extension and load cog
+        # remove file extension and load cog
+        bot.load_extension(f'cogs.{filename[:-3]}')
 
 bot.run(os.getenv('TOKEN'))
