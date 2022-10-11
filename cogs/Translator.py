@@ -103,6 +103,44 @@ class Translator(commands.Cog):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 
     @has_permissions(administrator=True)
+    @TranslatorChannelSlashGroup.command(description="Add a channel to a ChannelGroup")
+    # adding a default value makes parameter optional
+    async def addchannel(self, ctx, groupid, channel, language, webhook):
+        if groupid == '0':
+            await ctx.respond("Group ID cannot be 0")
+            return
+        self.db.db[str(ctx.guild.id)]["ChannelGroups"][groupid].update(
+            {channel: language})
+        self.db.db[str(ctx.guild.id)]["webhooks"].update({channel: webhook})
+        self.db.save()
+        await ctx.respond("Channel added to ChannelGroup!")
+
+    @addchannel.error
+    async def addchannel_error(self, ctx, error):
+        if isinstance(error, CheckFailure):
+            await ctx.respond("Admininstrator permissions are required to run this command.")
+
+    @has_permissions(administrator=True)
+    @TranslatorChannelSlashGroup.command(description="Remove a channel from a ChannelGroup")
+    # adding a default value makes parameter optional
+    async def removechannel(self, ctx, groupid, channel):
+        if groupid == '0':
+            await ctx.respond("Group ID cannot be 0")
+            return
+        if channel == '0':
+            await ctx.respond("channel ID cannot be 0")
+            return
+        self.db.db[str(ctx.guild.id)]["ChannelGroups"][groupid].pop(channel)
+        self.db.db[str(ctx.guild.id)]["webhooks"].pop(channel)
+        self.db.save()
+        await ctx.respond("Channel removed from ChannelGroup!")
+
+    @addchannel.error
+    async def removechannel_error(self, ctx, error):
+        if isinstance(error, CheckFailure):
+            await ctx.respond("Admininstrator permissions are required to run this command.")
+
+    @has_permissions(administrator=True)
     @TranslatorSlashGroup.command(description="Display the server config JSON")
     async def viewserverconfig(self, ctx):
         await ctx.respond(f"```json\n\n{json.dumps(self.db.read()[str(ctx.guild.id)], indent=4)}\n```")
