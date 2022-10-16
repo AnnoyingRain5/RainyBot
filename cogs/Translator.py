@@ -1,4 +1,5 @@
 from discord import Webhook
+from discord.channel import DMChannel
 import aiohttp
 import googletrans
 import json
@@ -52,7 +53,8 @@ class Translator(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        if ctx.webhook_id == None:  # if the message isnt from a webhook
+        if ctx.webhook_id == None and not isinstance(ctx.channel, DMChannel):
+            # if the message isnt from a webhook or in a DM
             for ChannelGroupID in self.db.read()[str(ctx.guild.id)]["ChannelGroups"]:
                 ChannelGroup = self.db.read()[str(
                     ctx.guild.id)]["ChannelGroups"][ChannelGroupID]

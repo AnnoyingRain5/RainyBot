@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.commands import SlashCommandGroup
 from lib.DatabaseManager import Database
 from discord.ext.commands import has_permissions, CheckFailure
+from discord.channel import DMChannel
 
 
 class QuickResponse(commands.Cog):
@@ -49,6 +50,8 @@ class QuickResponse(commands.Cog):
     async def on_message(self, ctx):
         # message responses
         if ctx.author == self.bot.user:  # ignore all messages by this bot
+            return
+        if isinstance(ctx.channel, DMChannel):  # ignore all messages in DMs
             return
         if ctx.content in self.db.read()[str(ctx.guild.id)]["MessageResponses"]:
             # send the response from the guild's responses
