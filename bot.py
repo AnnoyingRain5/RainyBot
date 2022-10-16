@@ -1,7 +1,10 @@
 import discord
 import os
 from dotenv import load_dotenv
-from discord.commands import SlashCommandGroup
+from discord.ext.commands import CheckFailure
+import sys
+import traceback
+from io import StringIO
 
 load_dotenv()  # load env vars from file
 
@@ -80,5 +83,35 @@ for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         # remove file extension and load cog
         bot.load_extension(f'cogs.{filename[:-3]}')
+
+
+# Global command error handler
+@bot.event
+async def on_application_command_error(ctx, error):
+    # Check failures should be handled by the individual cogs, not here.
+    if not isinstance(error, CheckFailure):
+        await ctx.send(f"An error occured and has been automatically reported to the developer. Error: `{error}`")
+        info = await bot.application_info()
+        sio = StringIO()
+        # traceback requires a file-like object, so we use StringIO to get the traceback as a string
+        traceback.print_exception(error, file=sio, limit=4)
+        tb = sio.getvalue()  # get the string from the StringIO object
+        message = f"An error occured in {ctx.guild.name} ({ctx.guild.id}) in {ctx.channel.name} ({ctx.channel.mention}) by {ctx.author.name} ({ctx.author.mention})\nError: `{error}`\n The traceback will be supplied in the next message."
+        await info.owner.send(message)
+        await info.owner.send(f"```py\n{tb}```")
+
+
+# Global non-command error handler
+@bot.event
+async def on_error(event, *args, **kwargs):
+    info = await bot.application_info()
+    sio = StringIO()
+    # traceback requires a file-like object, so we use StringIO to get the traceback as a string
+    traceback.print_exc(file=sio, limit=4)
+    tb = sio.getvalue()  # get the string from the StringIO object
+    message = f"The following error occoured in `{event}`:\nargs: ```py\n{args}```\nkwargs:```py\n{kwargs}```\n\nError type: `{sys.exc_info()[0]}`\nError value: `{sys.exc_info()[1]}`\nThe traceback will be supplied in the next message."
+    await info.owner.send(message)
+    await info.owner.send(f"```py\n{tb}```")
+
 
 bot.run(os.getenv('TOKEN'))
