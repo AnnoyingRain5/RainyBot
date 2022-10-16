@@ -79,6 +79,35 @@ class Translator(commands.Cog):
                                 f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
                             await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
 
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        if after.webhook_id == None:  # if the message isnt from a webhook
+            for ChannelGroupID in self.db.read()[str(after.guild.id)]["ChannelGroups"]:
+                ChannelGroup = self.db.read()[str(
+                    after.guild.id)]["ChannelGroups"][ChannelGroupID]
+                # if the channel is in the channelGroup
+                if str(after.channel.id) in ChannelGroup:
+                    for channel in ChannelGroup:
+                        # dont send the message in its own channel, and dont send it to ID 0
+                        if channel != str(after.channel.id) and channel != "0":
+                            webhook = Webhook.from_url(self.db.read()[str(
+                                after.guild.id)]["webhooks"][str(channel)], session=self.session)
+                            # Get the attachments
+                            attachments = []
+                            for attachment in after.attachments:
+                                attachments.append(await attachment.to_file())
+                            # if the message is empty (only attachments)
+                            if after.content == "":
+                                print(
+                                    "Error! a message was edited to be empty! This should not be possible!")
+                            # language of the channel the original message was in
+                            SourceLang = ChannelGroup[str(after.channel.id)]
+                            # language of the current channel in the ChannelGroup
+                            DestinationLang = ChannelGroup[str(channel)]
+                            TranslatedText = translator.translate(
+                                f"I edited a message!\nBefore: \"{before.content}\", \n After: \"{after.content}\"", DestinationLang, SourceLang).text
+                            await webhook.send(TranslatedText, username=after.author.name, avatar_url=after.author.avatar.url, files=attachments)
+
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
     # adding a default value makes parameter optional
