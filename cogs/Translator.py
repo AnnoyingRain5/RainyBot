@@ -113,8 +113,9 @@ class Translator(commands.Cog):
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
     # adding a default value makes parameter optional
-    async def create(self, ctx, channel1, channel1language, channel1webhook, channel2, channel2language, channel2webhook,
-                     channel3=0, channel3language='', channel3webhook='', channel4=0, channel4language='', channel4webhook='', channel5=0, channel5language='', channel5webhook=''):
+    async def create(self, ctx, channel1, channel1language, channel1webhook,
+                     channel2, channel2language, channel2webhook, channel3=0, channel3language='', channel3webhook='',
+                     channel4=0, channel4language='', channel4webhook='', channel5=0, channel5language='', channel5webhook=''):
 
         ChannelGroup = {channel1: channel1language, channel2: channel2language,
                         channel3: channel3language, channel4: channel4language, channel5: channel5language}
