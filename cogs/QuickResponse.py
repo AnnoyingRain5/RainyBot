@@ -53,9 +53,12 @@ class QuickResponse(commands.Cog):
             return
         if isinstance(ctx.channel, DMChannel):  # ignore all messages in DMs
             return
-        if ctx.content in self.db.read()[str(ctx.guild.id)]["MessageResponses"]:
-            # send the response from the guild's responses
-            await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["MessageResponses"][ctx.content])
+        # message responses
+        for trigger in self.db.read()[str(ctx.guild.id)]["MessageResponses"]:
+            if trigger != "":
+                if trigger.lower() == ctx.content.lower():
+                    # send the response from the guild's responses
+                    await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["MessageResponses"][trigger])
 
         # phrase responses
         for trigger in self.db.read()[str(ctx.guild.id)]["PhraseResponses"]:
