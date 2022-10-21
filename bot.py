@@ -78,6 +78,37 @@ async def ping(ctx):
 async def github(ctx):
     await ctx.respond("https://github.com/AnnoyingRain5/RainyBot")
 
+
+@bot.slash_command(description="Learn more about the bot!")
+async def info(ctx):
+    info = await bot.application_info()
+    version = os.popen("git describe --tags --abbrev=0").read().strip("\n")
+    latest = os.popen(
+        "git ls-remote --refs --tags | tail --lines=1 | cut --delimiter='/' --fields=3").read().strip("\n")
+
+    embed = discord.Embed(
+        title="Bot Info", description=f"Hi!\n I'm {info.name}, ")
+    if info.id == 1018460858625572924:  # if the bot is the official bot
+        embed.description += ""
+    else:  # if this is either a self hosted bot or a fork
+        if info.name == "RainyBot":  # if the name is the same as the official version, assume it's a self-hosted instance
+            embed.description += "I appear to be a self hosted version of the official bot, which is great!\n"
+        else:  # if the name is different, assume it's a fork
+            embed.description += f"or at least that's what {info.owner.name} called me.\n I'm actually RainyBot, a bot made by AnnoyingRains.\n "
+            embed.description += f"I'm either a fork or a self hosted version of the official bot, which is fine by me, it's who I am afterall!\n"
+    embed.description += "\nTo learn more about what I can do, check my commands by hitting / and clicking on my profile picture in the command picker, "
+    embed.description += "or by checking out my github! (/github)"
+
+    footer = f"I appear to be running on version {version}, "
+    if version == latest:
+        footer += "which is the latest version!\n"
+    else:  # if the bot is an old version, let the user know
+        footer += f"which is outdated, the latest version is {latest}. Could you ask {info.owner.name} to update me?\n"
+
+    embed.set_footer(text=footer)
+
+    await ctx.respond(embed=embed)
+
 # load all cogs
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
