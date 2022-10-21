@@ -89,7 +89,7 @@ async def info(ctx):
     embed = discord.Embed(
         title="Bot Info", description=f"Hi!\n I'm {info.name}, ")
     if info.id == 1018460858625572924:  # if the bot is the official bot
-        embed.description += ""
+        embed.description += "the official hosted version of RainyBot!\n"
     else:  # if this is either a self hosted bot or a fork
         if info.name == "RainyBot":  # if the name is the same as the official version, assume it's a self-hosted instance
             embed.description += "I appear to be a self hosted version of the official bot, which is great!\n"
