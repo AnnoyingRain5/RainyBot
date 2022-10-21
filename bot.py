@@ -127,7 +127,7 @@ async def on_application_command_error(ctx, error):
         # traceback requires a file-like object, so we use StringIO to get the traceback as a string
         traceback.print_exception(error, file=sio, limit=4)
         tb = sio.getvalue()  # get the string from the StringIO object
-        message = f"An error occured in {ctx.guild.name} ({ctx.guild.id}) in {ctx.channel.name} ({ctx.channel.mention}) by {ctx.author.name} ({ctx.author.mention})\n"
+        message = f"An error occurred in {ctx.guild.name} ({ctx.guild.id}) in {ctx.channel.name} ({ctx.channel.mention}) by {ctx.author.name} ({ctx.author.mention})\n"
         message += f"Error: `{error}`\n The traceback will be supplied in the next message."
         await info.owner.send(message)
         await info.owner.send(f"```py\n{tb}```")
@@ -141,7 +141,7 @@ async def on_error(event, *args, **kwargs):
     # traceback requires a file-like object, so we use StringIO to get the traceback as a string
     traceback.print_exc(file=sio, limit=4)
     tb = sio.getvalue()  # get the string from the StringIO object
-    message = f"The following error occoured in `{event}`:\nargs: ```py\n{args}```\nkwargs:```py\n{kwargs}```\n\n"
+    message = f"The following error occurred in `{event}`:\nargs: ```py\n{args}```\nkwargs:```py\n{kwargs}```\n\n"
     message += f"Error type: `{sys.exc_info()[0]}`\nError value: `{sys.exc_info()[1]}`\nThe traceback will be supplied in the next message."
     await info.owner.send(message)
     await info.owner.send(f"```py\n{tb}```")
