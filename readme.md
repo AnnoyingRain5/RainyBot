@@ -35,6 +35,7 @@ If you would like to self-host this bot, that's fine! You'll just need python 3.
 
 * `py-cord`
 * `googletrans==4.0.0rc1`
+* `python-dotenv`
 
 Note that the exact version of googletrans is *very* important, the stable release does *not* work.
 
