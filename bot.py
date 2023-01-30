@@ -33,7 +33,7 @@ async def load(ctx, cog: str):
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
 
-@bot.slash_command(description="Rnload cog")
+@bot.slash_command(description="Reload cog")
 async def unload(ctx, cog: str):
     if await bot.is_owner(ctx.author):
         try:
