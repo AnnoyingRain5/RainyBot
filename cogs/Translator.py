@@ -79,7 +79,10 @@ class Translator(commands.Cog):
                                 ctx.content, DestinationLang, SourceLang).text
                             print(
                                 f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
-                            await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
+                            if ctx.author.avatar != None: # if the user has a profile picture set
+                                await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
+                            else:
+                                await webhook.send(TranslatedText, username=ctx.author.name, files=attachments)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
@@ -108,7 +111,10 @@ class Translator(commands.Cog):
                             DestinationLang = ChannelGroup[str(channel)]
                             TranslatedText = translator.translate(
                                 f"I edited a message!\nBefore: \"{before.content}\", \n After: \"{after.content}\"", DestinationLang, SourceLang).text
-                            await webhook.send(TranslatedText, username=after.author.name, avatar_url=after.author.avatar.url, files=attachments)
+                            if after.author.avatar != None: # if the user has a profile picture set
+                                await webhook.send(TranslatedText, username=after.author.name, avatar_url=after.author.avatar.url, files=attachments)
+                            else:
+                                await webhook.send(TranslatedText, username=after.author.name, files=attachments)
 
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
