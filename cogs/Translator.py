@@ -7,6 +7,7 @@ from discord.commands import SlashCommandGroup
 from discord.ext import commands
 from discord.ext.commands import has_permissions, CheckFailure
 from lib.DatabaseManager import Database
+from httpcore._exceptions import ReadTimeout
 
 translator = googletrans.Translator()
 GuildToChannelGroupList = {}
@@ -75,8 +76,12 @@ class Translator(commands.Cog):
                             SourceLang = ChannelGroup[str(ctx.channel.id)]
                             # language of the current channel in the ChannelGroup
                             DestinationLang = ChannelGroup[str(channel)]
-                            TranslatedText = translator.translate(
-                                ctx.content, DestinationLang, SourceLang).text
+                            try:
+                                TranslatedText = translator.translate(
+                                    ctx.content, DestinationLang, SourceLang).text
+                            except ReadTimeout: # give it another shot if it times out
+                                TranslatedText = translator.translate(
+                                    ctx.content, DestinationLang, SourceLang).text
                             print(
                                 f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
                             if ctx.author.avatar != None: # if the user has a profile picture set
