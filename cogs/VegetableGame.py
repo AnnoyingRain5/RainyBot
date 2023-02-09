@@ -27,6 +27,13 @@ def List2DToTable(inputlist):
         output += "\n"
     return output
 
+def proximityCheck(pos1: dict, pos2: dict, MaxDistance: int):
+    if pos1["x"] - pos2["x"] <= MaxDistance or pos2["x"] - pos1["x"] <= MaxDistance:
+        if pos1["y"] - pos2["y"] <= MaxDistance or pos2["y"] - pos1["y"] <= MaxDistance:
+            return True
+    # otherwise
+    return False
+
 class VegetableGame(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -50,12 +57,36 @@ class VegetableGame(commands.Cog):
         ctx.respond(List2DToTable(grid))
                 
     @VegetableGameSlashGroup.command(description="Attack another player!")
-    async def attack(self, ctx, player: discord.Member):
-        await ctx.respond("Not yet implemented!")
+    async def attack(self, ctx, target: discord.Member):
+        targetPlayer = self.db.read()["Players"][target.id]
+        ownPlayer = self.db.read()["Players"][ctx.author.id]
+        ownPos = ownPlayer["Position"]
+        targetPos = targetPlayer["Position"]
+        if ownPlayer["Balance"] > 0:
+            if targetPlayer["Alive"] == True:
+                if proximityCheck(ownPos, targetPos, 5) == True:
+                    health = self.db.db["Players"][target.id]["Health"] - 1
+                    self.db.db["Players"][target.id]["Health"] = health
+                    self.db.db["Players"][ctx.author.id]["Balance"] -= 1
+                    self.db.save()
+                    await ctx.respond(f"{target.mention} was just attacked! They now have {health} health!")
+                else:
+                    await ctx.respond("They are too far away!")
+            else:
+                await ctx.respond("You cannot kill the dead.")
+        else:
+            await ctx.respond("You need an action token to do that!")
     
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
-    async def move(self, ctx, x=int, y=int):
-        await ctx.respond("Not yet implemented!")
+    async def move(self, ctx, newX=int, newY=int):
+        ownPos = self.db.read()["Players"][ctx.author.id]["Position"]
+        if self.db.db["Players"][ctx.author.id]["Balance"] > 0:
+            if proximityCheck(ownPos, {"x": newX, "y": newY}, 2):
+                self.db.db["Players"][ctx.author.id]["Position"] = {"x": newX, "y": newY}
+            else:
+                await ctx.respond("You can't mode that far away in one go!")
+        else:
+            await ctx.respond("You need an action token to do that!")
     
     @VegetableGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
     async def vote(self, ctx, player: discord.Member):
@@ -86,8 +117,14 @@ class VegetableGame(commands.Cog):
         
     @VegetableGameSlashGroup.command(description="joingame")
     async def joingame(self, ctx, emoji: str):
-        x = randint(0, self.db.read()["GameSize"]["x"])
-        y = randint(0, self.db.read()["GameSize"]["y"])
+        # keep generating positions until you find a free space
+        while True:
+            posx = randint(0, self.db.read()["GameSize"]["x"])
+            posy = randint(0, self.db.read()["GameSize"]["y"])
+            for player in self.db.read()["Players"]:
+                if posx != player["Position"]["x"] and posy != player["Position"]["y"]:
+                    break
+
         self.db.db["Players"][ctx.author.id] = {
             "Position":
                 {
@@ -96,7 +133,8 @@ class VegetableGame(commands.Cog):
                 },
                 "Alive": True,
                 "Balance": 0,
-                "emoji": emoji
+                "Emoji": emoji,
+                "Health": 3
             }
         self.db.save()
         await ctx.respond("You have joined the game!")
