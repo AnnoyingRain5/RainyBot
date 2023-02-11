@@ -4,6 +4,7 @@ from discord.commands import SlashCommandGroup
 from lib.DatabaseManager import Database
 from random import randint
 
+
 def List2DToTable(inputlist):
     output = ""
     height = len(inputlist)
@@ -11,21 +12,22 @@ def List2DToTable(inputlist):
     print(height, length)
     for y in range(height * 2 + 1):
         for x in range(length):
-            if y % 2 == 0: # if it is an even line
+            if y % 2 == 0:  # if it is an even line
                 if x == 0:
                     output += "+---+"
                 else:
                     output += "---+"
             # line is not even, show content instead
-            elif inputlist[int(y/2)][x] != "": # cell has content
-                    output += f"|{inputlist[int(y/2)][x]} "
-            else: # cell does not have content
+            elif inputlist[int(y/2)][x] != "":  # cell has content
+                output += f"|{inputlist[int(y/2)][x]} "
+            else:  # cell does not have content
                 output += "|    "
             if x == length - 1:
-                if y % 2 != 0: # if it is an odd line
+                if y % 2 != 0:  # if it is an odd line
                     output += "|"
         output += "\n"
     return output
+
 
 def proximityCheck(pos1: dict, pos2: dict, MaxDistance: int):
     pos1x = int(pos1["x"])
@@ -38,12 +40,13 @@ def proximityCheck(pos1: dict, pos2: dict, MaxDistance: int):
     # otherwise
     return False
 
+
 class VegetableGame(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     VegetableGameSlashGroup = SlashCommandGroup(
         "veg", "Interact with the Vegetable game!")
-    
+
     def cog_unload(self):
         self.add_tokens.cancel()
 
@@ -63,7 +66,7 @@ class VegetableGame(commands.Cog):
                         grid[y].append(player["emoji"])
                 grid[y].append("")
         ctx.respond(List2DToTable(grid))
-                
+
     @VegetableGameSlashGroup.command(description="Attack another player!")
     async def attack(self, ctx, target: discord.Member):
         targetPlayer = self.db.read()["Players"][str(target.id)]
@@ -73,7 +76,8 @@ class VegetableGame(commands.Cog):
         if ownPlayer["Balance"] > 0:
             if targetPlayer["Alive"] == True:
                 if proximityCheck(ownPos, targetPos, 5) == True:
-                    health = self.db.db["Players"][str(target.id)]["Health"] - 1
+                    health = self.db.db["Players"][str(
+                        target.id)]["Health"] - 1
                     self.db.db["Players"][str(target.id)]["Health"] = health
                     self.db.db["Players"][str(ctx.author.id)]["Balance"] -= 1
                     if health == 0:
@@ -86,24 +90,25 @@ class VegetableGame(commands.Cog):
                 await ctx.respond("You cannot kill the dead.")
         else:
             await ctx.respond("You need an action token to do that!")
-    
+
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
     async def move(self, ctx, new_x: int, new_y: int):
         ownPos = self.db.read()["Players"][str(ctx.author.id)]["Position"]
         if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
             if proximityCheck(ownPos, {"x": new_x, "y": new_y}, 2) == True:
-                self.db.db["Players"][str(ctx.author.id)]["Position"] = {"x": new_x, "y": new_y}
+                self.db.db["Players"][str(ctx.author.id)]["Position"] = {
+                    "x": new_x, "y": new_y}
                 self.db.save()
                 await ctx.respond(f"You have moved to x = {new_x}, y = {new_y}")
             else:
                 await ctx.respond("You can't mode that far away in one go!")
         else:
             await ctx.respond("You need an action token to do that!")
-    
+
     @VegetableGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
     async def vote(self, ctx, player: discord.Member):
         await ctx.respond("Not yet implemented!")
-        
+
     @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
     async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.channel):
         if areyousure == False:
@@ -121,13 +126,13 @@ class VegetableGame(commands.Cog):
             }
             self.db.save()
         await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
-        
+
     @VegetableGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
         self.db.update({"GameActive": True})
         self.db.save()
         await ctx.respond("The game has now started, have fun! (or don't)")
-        
+
     @VegetableGameSlashGroup.command(description="joingame")
     async def joingame(self, ctx, emoji: str):
         # keep generating positions until you find a free space
@@ -151,19 +156,21 @@ class VegetableGame(commands.Cog):
                 "Balance": 0,
                 "Emoji": emoji,
                 "Health": 3
-            }
+        }
         self.db.save()
         await ctx.respond("You have joined the game!")
 
-    @tasks.loop(seconds=20) #TODO change this to 24 hours when out of testing
+    @tasks.loop(seconds=20)  # TODO change this to 24 hours when out of testing
     async def add_tokens(self):
         channel = discord.get_channel(self.db.db["Announcements_Channel_ID"])
-        channel.send("It's that time again! Everyone (who is still alive) just got an action token!")
+        channel.send(
+            "It's that time again! Everyone (who is still alive) just got an action token!")
         for player in self.db.db["Players"]:
             print(f"added token to {player}")
             if self.db.db["Players"][player]["Alive"] == True:
                 self.db.db["Players"][player]["Balance"] += 1
         self.db.save()
-            
+
+
 def setup(bot):
     bot.add_cog(VegetableGame(bot))
