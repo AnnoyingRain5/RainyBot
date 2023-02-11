@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 from discord.commands import SlashCommandGroup
 from lib.DatabaseManager import Database
@@ -43,10 +43,14 @@ class VegetableGame(commands.Cog):
         self.bot = bot
     VegetableGameSlashGroup = SlashCommandGroup(
         "veg", "Interact with the Vegetable game!")
+    
+    def cog_unload(self):
+        self.add_tokens.cancel()
 
     @commands.Cog.listener()
     async def on_ready(self):
         self.db = Database("VegetableGame")
+        self.add_tokens.start()
 
     @VegetableGameSlashGroup.command(description="View the current game board")
     async def viewboard(self, ctx, showownrange: bool, showallranges: bool):
@@ -72,6 +76,8 @@ class VegetableGame(commands.Cog):
                     health = self.db.db["Players"][str(target.id)]["Health"] - 1
                     self.db.db["Players"][str(target.id)]["Health"] = health
                     self.db.db["Players"][str(ctx.author.id)]["Balance"] -= 1
+                    if health == 0:
+                        self.db.db["Players"][str(target.id)]["Alive"] = False
                     self.db.save()
                     await ctx.respond(f"{target.mention} was just attacked! They now have {health} health!")
                 else:
@@ -82,7 +88,7 @@ class VegetableGame(commands.Cog):
             await ctx.respond("You need an action token to do that!")
     
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
-    async def move(self, ctx, new_x=int, new_y=int):
+    async def move(self, ctx, new_x: int, new_y: int):
         ownPos = self.db.read()["Players"][str(ctx.author.id)]["Position"]
         if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
             if proximityCheck(ownPos, {"x": new_x, "y": new_y}, 2) == True:
@@ -99,7 +105,7 @@ class VegetableGame(commands.Cog):
         await ctx.respond("Not yet implemented!")
         
     @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
-    async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int):
+    async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.channel):
         if areyousure == False:
             await ctx.respond("Please be sure before running this command, it wipes the database!")
         else:
@@ -110,7 +116,8 @@ class VegetableGame(commands.Cog):
                 "GameSize": {
                     "x": sizex,
                     "y": sizey
-                }
+                },
+                "Announcements_channel_ID": announcements_channel.id
             }
             self.db.save()
         await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
@@ -147,6 +154,16 @@ class VegetableGame(commands.Cog):
             }
         self.db.save()
         await ctx.respond("You have joined the game!")
+
+    @tasks.loop(seconds=20) #TODO change this to 24 hours when out of testing
+    async def add_tokens(self):
+        channel = discord.get_channel(self.db.db["Announcements_Channel_ID"])
+        channel.send("It's that time again! Everyone (who is still alive) just got an action token!")
+        for player in self.db.db["Players"]:
+            print(f"added token to {player}")
+            if self.db.db["Players"][player]["Alive"] == True:
+                self.db.db["Players"][player]["Balance"] += 1
+        self.db.save()
             
 def setup(bot):
     bot.add_cog(VegetableGame(bot))
