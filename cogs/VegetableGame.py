@@ -110,7 +110,7 @@ class VegetableGame(commands.Cog):
         await ctx.respond("Not yet implemented!")
 
     @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
-    async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.channel):
+    async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.abc.GuildChannel):
         if areyousure == False:
             await ctx.respond("Please be sure before running this command, it wipes the database!")
         else:
@@ -162,7 +162,7 @@ class VegetableGame(commands.Cog):
 
     @tasks.loop(seconds=20)  # TODO change this to 24 hours when out of testing
     async def add_tokens(self):
-        channel = discord.get_channel(self.db.db["Announcements_Channel_ID"])
+        channel = self.bot.get_channel(self.db.db["Announcements_Channel_ID"])
         channel.send(
             "It's that time again! Everyone (who is still alive) just got an action token!")
         for player in self.db.db["Players"]:
