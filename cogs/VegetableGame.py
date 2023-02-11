@@ -28,8 +28,12 @@ def List2DToTable(inputlist):
     return output
 
 def proximityCheck(pos1: dict, pos2: dict, MaxDistance: int):
-    if pos1["x"] - pos2["x"] <= MaxDistance or pos2["x"] - pos1["x"] <= MaxDistance:
-        if pos1["y"] - pos2["y"] <= MaxDistance or pos2["y"] - pos1["y"] <= MaxDistance:
+    pos1x = int(pos1["x"])
+    pox1y = int(pos1["y"])
+    pos2x = int(pos2["x"])
+    pox2y = int(pos2["y"])
+    if pos1x - pos2x <= MaxDistance and pos1x - pos2x > 0 or pos2x - pos1x <= MaxDistance and pos2x - pos1x > 0:
+        if pox1y - pox2y <= MaxDistance and pox1y - pox2y > 0 or pox2y - pox1y <= MaxDistance and pox2y - pox1y > 0:
             return True
     # otherwise
     return False
@@ -58,16 +62,16 @@ class VegetableGame(commands.Cog):
                 
     @VegetableGameSlashGroup.command(description="Attack another player!")
     async def attack(self, ctx, target: discord.Member):
-        targetPlayer = self.db.read()["Players"][target.id]
-        ownPlayer = self.db.read()["Players"][ctx.author.id]
+        targetPlayer = self.db.read()["Players"][str(target.id)]
+        ownPlayer = self.db.read()["Players"][str(ctx.author.id)]
         ownPos = ownPlayer["Position"]
         targetPos = targetPlayer["Position"]
         if ownPlayer["Balance"] > 0:
             if targetPlayer["Alive"] == True:
                 if proximityCheck(ownPos, targetPos, 5) == True:
-                    health = self.db.db["Players"][target.id]["Health"] - 1
-                    self.db.db["Players"][target.id]["Health"] = health
-                    self.db.db["Players"][ctx.author.id]["Balance"] -= 1
+                    health = self.db.db["Players"][str(target.id)]["Health"] - 1
+                    self.db.db["Players"][str(target.id)]["Health"] = health
+                    self.db.db["Players"][str(ctx.author.id)]["Balance"] -= 1
                     self.db.save()
                     await ctx.respond(f"{target.mention} was just attacked! They now have {health} health!")
                 else:
@@ -78,11 +82,13 @@ class VegetableGame(commands.Cog):
             await ctx.respond("You need an action token to do that!")
     
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
-    async def move(self, ctx, newX=int, newY=int):
-        ownPos = self.db.read()["Players"][ctx.author.id]["Position"]
-        if self.db.db["Players"][ctx.author.id]["Balance"] > 0:
-            if proximityCheck(ownPos, {"x": newX, "y": newY}, 2):
-                self.db.db["Players"][ctx.author.id]["Position"] = {"x": newX, "y": newY}
+    async def move(self, ctx, new_x=int, new_y=int):
+        ownPos = self.db.read()["Players"][str(ctx.author.id)]["Position"]
+        if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
+            if proximityCheck(ownPos, {"x": new_x, "y": new_y}, 2) == True:
+                self.db.db["Players"][str(ctx.author.id)]["Position"] = {"x": new_x, "y": new_y}
+                self.db.save()
+                await ctx.respond(f"You have moved to x = {new_x}, y = {new_y}")
             else:
                 await ctx.respond("You can't mode that far away in one go!")
         else:
@@ -121,15 +127,18 @@ class VegetableGame(commands.Cog):
         while True:
             posx = randint(0, self.db.read()["GameSize"]["x"])
             posy = randint(0, self.db.read()["GameSize"]["y"])
-            for player in self.db.read()["Players"]:
-                if posx != player["Position"]["x"] and posy != player["Position"]["y"]:
-                    break
+            if len(self.db.read()["Players"]) > 1:
+                for player in self.db.read()["Players"]:
+                    if posx != player["Position"]["x"] and posy != player["Position"]["y"]:
+                        break
+            else:
+                break
 
         self.db.db["Players"][ctx.author.id] = {
             "Position":
                 {
-                    "x": x,
-                    "y": y
+                    "x": posx,
+                    "y": posy
                 },
                 "Alive": True,
                 "Balance": 0,
