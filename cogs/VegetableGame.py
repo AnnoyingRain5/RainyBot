@@ -312,7 +312,7 @@ class VegetableGame(commands.Cog):
         self.game.active = False
         await ctx.respond("Stopped the game")
 
-    @VegetableGameSlashGroup.command(description="joingame")
+    @VegetableGameSlashGroup.command(description="join the game!")
     async def joingame(self, ctx, emoji: str):
         self.game.players.append(Player(ctx.author,
                                         self.db, newPlayer=True, emoji=emoji))
