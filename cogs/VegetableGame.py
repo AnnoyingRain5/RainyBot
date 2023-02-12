@@ -404,6 +404,21 @@ class VegetableGame(commands.Cog):
         await ctx.respond(embed=embed)
     # TODO change this to 24 hours when out of testing
 
+    @VegetableGameSlashGroup.command(description="Gift someone a token!")
+    async def gifttoken(self, ctx: Context, target: discord.Member):
+        if self.game.active != True:  # Only run if a game is active
+            await ctx.respond("A game needs to be active to gift tokens!")
+            return
+        ownPlayer = Player(ctx.author, self.db)
+        targetPlayer = Player(target, self.db)
+        if ownPlayer.tokens >= 1:
+            ownPlayer.tokens -= 1
+            targetPlayer.tokens += 1
+        else:
+            await ctx.respond("You need a token to do that!")
+        await ctx.respond(f"You have gifted {target.display_name} a token!")
+        await self.game.announce(f"{ctx.author.mention} just gifted {target.mention} a token!")
+
     @tasks.loop(hours=0.5)
     async def add_tokens(self):
         await self.game.announce(
