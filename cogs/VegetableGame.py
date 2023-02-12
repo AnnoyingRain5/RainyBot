@@ -1,6 +1,7 @@
 from discord.ext import commands, tasks
 import discord
 from discord.commands import SlashCommandGroup
+from discord.commands.context import ApplicationContext as Context
 from lib.DatabaseManager import Database
 from random import randint
 from asyncinit import asyncinit
@@ -18,7 +19,7 @@ def DictToVector2(indict: dict):
 
 
 class Player():
-    def __init__(self, user: discord.User, db: Database, newPlayer: bool = False, emoji: str = ""):
+    def __init__(self, user: discord.User | discord.Member, db: Database, newPlayer: bool = False, emoji: str = ""):
         self._db = db
         # if this is a new player, we need to do some extra setup
         if newPlayer:
@@ -230,7 +231,7 @@ class VegetableGame(commands.Cog):
         self.game = await GameManager(self.db, self.bot, self.add_tokens)
 
     @VegetableGameSlashGroup.command(description="View the current game board")
-    async def viewboard(self, ctx, showownrange: bool, showallranges: bool):
+    async def viewboard(self, ctx: Context, showownrange: bool, showallranges: bool):
         grid = []
         for y in range(self.game.size.y):
             grid.append([])
@@ -258,7 +259,7 @@ class VegetableGame(commands.Cog):
         await ctx.respond(f"```py\n{fgrid}```")
 
     @VegetableGameSlashGroup.command(description="Attack another player!")
-    async def attack(self, ctx, target: discord.User):
+    async def attack(self, ctx: Context, target: discord.Member):
         targetPlayer = Player(target, self.db)
         ownPlayer = Player(ctx.author, self.db)
         ownPos = ownPlayer.position
@@ -280,7 +281,7 @@ class VegetableGame(commands.Cog):
             await ctx.respond("You need an action token to do that!")
 
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
-    async def move(self, ctx, new_x: int, new_y: int):
+    async def move(self, ctx: Context, new_x: int, new_y: int):
         ownPlayer = Player(ctx.author, self.db)
         if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
             if proximityCheck(ownPlayer.position, Vector2(new_x, new_y), 2) == True:
@@ -292,11 +293,11 @@ class VegetableGame(commands.Cog):
             await ctx.respond("You need an action token to do that!")
 
     @VegetableGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
-    async def vote(self, ctx, player: discord.Member):
+    async def vote(self, ctx: Context, player: discord.Member):
         await ctx.respond("Not yet implemented!")
 
     @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
-    async def preparegame(self, ctx, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.TextChannel):
+    async def preparegame(self, ctx: Context, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.TextChannel):
         if areyousure == False:
             await ctx.respond("Please be sure before running this command, it wipes the database!")
         else:
@@ -317,14 +318,14 @@ class VegetableGame(commands.Cog):
         await ctx.respond("Stopped the game")
 
     @VegetableGameSlashGroup.command(description="join the game!")
-    async def joingame(self, ctx, emoji: str):
+    async def joingame(self, ctx: Context, emoji: str):
         self.game.players.append(Player(ctx.author,
                                         self.db, newPlayer=True, emoji=emoji))
         await ctx.respond("You have joined the game!")
         await self.game.announce(f"{ctx.author.mention} Just joined the game!")
 
     @VegetableGameSlashGroup.command(description="Get info on a particular player!")
-    async def getinfo(self, ctx, target: discord.User):
+    async def getinfo(self, ctx: Context, target: discord.Member):
         player = Player(target, self.db)
         if player.health != 0:
             fhealth = "❤️" * player.health
