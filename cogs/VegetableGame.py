@@ -316,7 +316,6 @@ class VegetableGame(commands.Cog):
             print(f"added token to {player}")
             if player.alive:
                 player.tokens += 1
-        self.db.save()
 
 
 def setup(bot):
