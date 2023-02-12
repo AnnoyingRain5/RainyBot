@@ -239,22 +239,22 @@ def proximityCheck(pos1: Vector2, pos2: Vector2, MaxDistance: int):
     return False
 
 
-class VegetableGame(commands.Cog):
+class EmojiGame(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    VegetableGameSlashGroup = SlashCommandGroup(
-        "veg", "Interact with the Vegetable game!")
+    EmojiGameSlashGroup = SlashCommandGroup(
+        "veg", "Interact with the Emoji game!")
 
     def cog_unload(self):
         self.add_tokens.cancel()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.db = Database("VegetableGame")
+        self.db = Database("EmojiGame")
         self.game = await GameManager(self.db, self.bot, self.add_tokens)
 
-    @VegetableGameSlashGroup.command(description="View the current game board")
+    @EmojiGameSlashGroup.command(description="View the current game board")
     async def viewboard(self, ctx: Context, showownrange: bool, showallranges: bool):
         grid = []
         for y in range(self.game.size.y):
@@ -282,7 +282,7 @@ class VegetableGame(commands.Cog):
 
         await ctx.respond(f"```py\n{fgrid}```")
 
-    @VegetableGameSlashGroup.command(description="Attack another player!")
+    @EmojiGameSlashGroup.command(description="Attack another player!")
     async def attack(self, ctx: Context, target: discord.Member):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to attack!")
@@ -307,7 +307,7 @@ class VegetableGame(commands.Cog):
         else:
             await ctx.respond("You need an action token to do that!")
 
-    @VegetableGameSlashGroup.command(description="Move somewhere else!")
+    @EmojiGameSlashGroup.command(description="Move somewhere else!")
     async def move(self, ctx: Context, new_x: int, new_y: int):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to move!")
@@ -322,13 +322,13 @@ class VegetableGame(commands.Cog):
         else:
             await ctx.respond("You need an action token to do that!")
 
-    @VegetableGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
+    @EmojiGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
     async def vote(self, ctx: Context, player: discord.Member):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to vote!")
         await ctx.respond("Not yet implemented!")
 
-    @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
+    @EmojiGameSlashGroup.command(description="Prepare the game! (owner only)")
     async def preparegame(self, ctx: Context, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.TextChannel):
         if areyousure == False:
             await ctx.respond("Please be sure before running this command, it wipes the database!")
@@ -343,26 +343,26 @@ class VegetableGame(commands.Cog):
                 await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
                 await self.game.announce("The game is ready to start! Get ready!")
 
-    @VegetableGameSlashGroup.command(description="Start a game! (owner only)")
+    @EmojiGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
         await self.game.announce("The game has started! Have fun!")
         self.game.active = True
         await ctx.respond("Started the game")
 
-    @VegetableGameSlashGroup.command(description="Pause the game! (owner only)")
+    @EmojiGameSlashGroup.command(description="Pause the game! (owner only)")
     async def pausegame(self, ctx):
         await self.game.announce("The game has been put on hold...")
         self.game.active = False
         await ctx.respond("Stopped the game")
 
-    @VegetableGameSlashGroup.command(description="Join the game!")
+    @EmojiGameSlashGroup.command(description="Join the game!")
     async def joingame(self, ctx: Context, emoji: str):
         self.game.players.append(Player(ctx.author,
                                         self.db, newPlayer=True, emoji=emoji))
         await ctx.respond("You have joined the game!")
         await self.game.announce(f"{ctx.author.mention} Just joined the game!")
 
-    @VegetableGameSlashGroup.command(description="Get info on a particular player!")
+    @EmojiGameSlashGroup.command(description="Get info on a particular player!")
     async def getinfo(self, ctx: Context, target: discord.Member):
         player = Player(target, self.db)
         if player.health != 0:
@@ -404,7 +404,7 @@ class VegetableGame(commands.Cog):
         await ctx.respond(embed=embed)
     # TODO change this to 24 hours when out of testing
 
-    @VegetableGameSlashGroup.command(description="Gift someone a token!")
+    @EmojiGameSlashGroup.command(description="Gift someone a token!")
     async def gifttoken(self, ctx: Context, target: discord.Member):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to gift tokens!")
@@ -434,4 +434,4 @@ class VegetableGame(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(VegetableGame(bot))
+    bot.add_cog(EmojiGame(bot))
