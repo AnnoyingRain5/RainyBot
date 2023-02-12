@@ -284,6 +284,9 @@ class VegetableGame(commands.Cog):
 
     @VegetableGameSlashGroup.command(description="Attack another player!")
     async def attack(self, ctx: Context, target: discord.Member):
+        if self.game.active != True:  # Only run if a game is active
+            await ctx.respond("A game needs to be active to attack!")
+            return
         targetPlayer = Player(target, self.db)
         ownPlayer = Player(ctx.author, self.db)
         ownPos = ownPlayer.position
@@ -306,6 +309,9 @@ class VegetableGame(commands.Cog):
 
     @VegetableGameSlashGroup.command(description="Move somewhere else!")
     async def move(self, ctx: Context, new_x: int, new_y: int):
+        if self.game.active != True:  # Only run if a game is active
+            await ctx.respond("A game needs to be active to move!")
+            return
         ownPlayer = Player(ctx.author, self.db)
         if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
             if proximityCheck(ownPlayer.position, Vector2(new_x, new_y), 2) == True:
@@ -318,6 +324,8 @@ class VegetableGame(commands.Cog):
 
     @VegetableGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
     async def vote(self, ctx: Context, player: discord.Member):
+        if self.game.active != True:  # Only run if a game is active
+            await ctx.respond("A game needs to be active to vote!")
         await ctx.respond("Not yet implemented!")
 
     @VegetableGameSlashGroup.command(description="Prepare the game! (owner only)")
@@ -333,6 +341,7 @@ class VegetableGame(commands.Cog):
                 await ctx.respond(f"Error: {e}")
             else:
                 await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
+                await self.game.announce("The game is ready to start! Get ready!")
 
     @VegetableGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
@@ -346,7 +355,7 @@ class VegetableGame(commands.Cog):
         self.game.active = False
         await ctx.respond("Stopped the game")
 
-    @VegetableGameSlashGroup.command(description="join the game!")
+    @VegetableGameSlashGroup.command(description="Join the game!")
     async def joingame(self, ctx: Context, emoji: str):
         self.game.players.append(Player(ctx.author,
                                         self.db, newPlayer=True, emoji=emoji))
