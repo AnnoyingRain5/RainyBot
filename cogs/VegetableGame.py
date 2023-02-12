@@ -78,7 +78,7 @@ class Player():
         return self._tokens
 
     def _tokens_set(self, tokens: int):
-        self._tokens += tokens
+        self._tokens = tokens
         self._db.db["Players"][str(self.dbPlayerID)]["Balance"] = self._tokens
         self._db.save()
 
@@ -222,10 +222,6 @@ class GameManager():
 
 
 def proximityCheck(pos1: Vector2, pos2: Vector2, MaxDistance: int):
-    print(pos1.x - pos2.x)
-    print(pos2.x - pos1.x)
-    print(pos1.y - pos2.y)
-    print(pos2.y - pos1.y)
     if pos1.x - pos2.x <= MaxDistance and pos1.x - pos2.x >= 0 or pos2.x - pos1.x <= MaxDistance and pos2.x - pos1.x >= 0:
         if pos1.y - pos2.y <= MaxDistance and pos1.y - pos2.y >= 0 or pos2.y - pos1.y <= MaxDistance and pos2.y - pos1.y >= 0:
             return True
