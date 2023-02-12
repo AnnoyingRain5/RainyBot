@@ -162,6 +162,11 @@ class GameManager():
             self._AnnounceChannel = None
 
     def SetupGame(self, size: Vector2, AnnouncementsChannel: discord.TextChannel):
+        if size.x <= 2 or size.y <= 2:
+            raise ValueError("Both size axes must be at least 2")
+        if size.x >= 14 or size.y >= 14:
+            raise ValueError(
+                "Due to discord limitations; the maximum size is 13")
         self._db.db = {
             "Players": {},
             "GameActive": False,
@@ -183,6 +188,9 @@ class GameManager():
     def set_size(self, size: Vector2):
         if size.x <= 2 or size.y <= 2:
             raise ValueError("Both size axes must be at least 2")
+        if size.x >= 14 or size.y >= 14:
+            raise ValueError(
+                "Due to discord limitations; the maximum size is 13")
         self._size = size
         self._db.db["Size"] = self._size
         self._db.save()
@@ -318,8 +326,13 @@ class VegetableGame(commands.Cog):
             await ctx.respond("Please be sure before running this command, it wipes the database!")
         else:
             # user is sure
-            self.game.SetupGame(Vector2(sizex, sizey), announcements_channel)
-        await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
+            try:
+                self.game.SetupGame(Vector2(sizex, sizey),
+                                    announcements_channel)
+            except ValueError as e:
+                await ctx.respond(f"Error: {e}")
+            else:
+                await ctx.respond("The slate has been wiped clean, and a game is ready to start!")
 
     @VegetableGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
