@@ -51,7 +51,8 @@ class Player():
                     "Alive": True,
                     "Balance": 0,
                     "Emoji": emoji,
-                    "Health": 3
+                    "Health": 3,
+                    "Vote": ""
             }
             self._db.save()
             self._db.reload()  # another weird case where this is needed...
@@ -62,6 +63,7 @@ class Player():
         self._health = int(dbPlayer['Health'])
         self._alive = bool(dbPlayer["Alive"])
         self._emoji = str(dbPlayer["Emoji"])
+        self._vote = str(dbPlayer["Vote"])
         self._position = DictToVector2(dbPlayer["Position"])
         self.dbPlayerID = user.id
 
@@ -135,11 +137,21 @@ class Player():
                                ]["Position"] = self._position
         self._db.save()
 
+    def _vote_get(self):
+        self.reload()
+        return self._vote
+
+    def _vote_set(self, vote: discord.Member):
+        self._vote = vote.id
+        self._db.db["Players"][str(self.dbPlayerID)]["Vote"] = self._vote
+        self._db.save()
+
     tokens = property(_tokens_get, _tokens_set)
     health = property(_health_get, _health_set)
     alive = property(_alive_get, _alive_set)
     emoji = property(_emoji_get, _emoji_set)
     position = property(_position_get, _position_set)
+    vote = property(_vote_get, _vote_set)
 
 
 @asyncinit
@@ -329,10 +341,11 @@ class EmojiGame(commands.Cog):
             await ctx.respond("You need an action token to do that!")
 
     @EmojiGameSlashGroup.command(description="Vote for a player to recieve a bonus Token! (only usable by dead players)")
-    async def vote(self, ctx: Context, player: discord.Member):
+    async def vote(self, ctx: Context, target: discord.Member):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to vote!")
-        await ctx.respond("Not yet implemented!")
+        Player(ctx.author, self.db).vote = target
+        await ctx.respond(f"You have voted for {target.mention}")
 
     @EmojiGameSlashGroup.command(description="Prepare the game! (owner only)")
     async def preparegame(self, ctx: Context, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.TextChannel):
@@ -469,9 +482,18 @@ class EmojiGame(commands.Cog):
     async def add_tokens(self):
         await self.game.announce(
             "It's that time again! Everyone (who is still alive) just got an action token!")
+        votes = {}
         for player in self.game.players:
             if player.alive:
                 player.tokens += 1
+            elif player.vote != "":
+                if player.vote in votes:
+                    votes[player.vote] += 1
+                else:
+                    votes[player.vote] = 1
+        if votes != {}:
+            winner = await self.bot.fetch_user(max(votes))
+            Player(winner, self.db).tokens += 1
 
 
 def setup(bot):
