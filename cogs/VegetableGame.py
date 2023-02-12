@@ -79,7 +79,7 @@ class Player():
 
     def _tokens_set(self, tokens: int):
         self._tokens += tokens
-        self._db.db["Players"][str(self.dbPlayerID)]["Tokens"] = self._tokens
+        self._db.db["Players"][str(self.dbPlayerID)]["Balance"] = self._tokens
         self._db.save()
 
     def _health_get(self):
