@@ -267,7 +267,11 @@ class VegetableGame(commands.Cog):
             if targetPlayer.alive:
                 if proximityCheck(ownPos, targetPos, 5) == True:
                     targetPlayer.health -= 1
-                    await ctx.respond(f"{target.mention} was just attacked! They now have {targetPlayer.health} health!")
+                    if targetPlayer.alive == False:  # If we just killed them
+                        await ctx.respond(f"You have just killed {ctx.author.mention}")
+                        await self.game.announce(f"{target.mention} was slain by {ctx.author.mention}!")
+                    else:
+                        await ctx.respond(f"{target.mention} was just attacked! They now have {targetPlayer.health} health!")
                 else:
                     await ctx.respond("They are too far away!")
             else:
