@@ -411,11 +411,16 @@ class VegetableGame(commands.Cog):
             return
         ownPlayer = Player(ctx.author, self.db)
         targetPlayer = Player(target, self.db)
-        if ownPlayer.tokens >= 1:
-            ownPlayer.tokens -= 1
-            targetPlayer.tokens += 1
+        if proximityCheck(ownPlayer.position, targetPlayer.position, 6):
+            if ownPlayer.tokens >= 1:
+                ownPlayer.tokens -= 1
+                targetPlayer.tokens += 1
+            else:
+                await ctx.respond("You need a token to do that!")
+                return
         else:
-            await ctx.respond("You need a token to do that!")
+            await ctx.respond(f"{target.display_name} is too far away!")
+            return
         await ctx.respond(f"You have gifted {target.display_name} a token!")
         await self.game.announce(f"{ctx.author.mention} just gifted {target.mention} a token!")
 
