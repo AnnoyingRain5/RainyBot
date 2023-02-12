@@ -302,15 +302,15 @@ class VegetableGame(commands.Cog):
 
     @VegetableGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
+        await self.game.announce("The game has started! Have fun!")
         self.game.active = True
         await ctx.respond("Started the game")
-        await self.game.announce("The game has started! Have fun!")
 
     @VegetableGameSlashGroup.command(description="Pause the game! (owner only)")
     async def pausegame(self, ctx):
+        await self.game.announce("The game has been put on hold...")
         self.game.active = False
         await ctx.respond("Stopped the game")
-        await self.game.announce("The game has been put on hold...")
 
     @VegetableGameSlashGroup.command(description="joingame")
     async def joingame(self, ctx, emoji: str):
