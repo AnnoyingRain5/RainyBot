@@ -244,7 +244,7 @@ class EmojiGame(commands.Cog):
         self.bot = bot
 
     EmojiGameSlashGroup = SlashCommandGroup(
-        "veg", "Interact with the Emoji game!")
+        "gm", "Interact with the Emoji game!")
 
     def cog_unload(self):
         self.add_tokens.cancel()
@@ -322,7 +322,7 @@ class EmojiGame(commands.Cog):
         else:
             await ctx.respond("You need an action token to do that!")
 
-    @EmojiGameSlashGroup.command(description="Vote for a player to recieve a bonus veggie! (only usable by dead players)")
+    @EmojiGameSlashGroup.command(description="Vote for a player to recieve a bonus Token! (only usable by dead players)")
     async def vote(self, ctx: Context, player: discord.Member):
         if self.game.active != True:  # Only run if a game is active
             await ctx.respond("A game needs to be active to vote!")
