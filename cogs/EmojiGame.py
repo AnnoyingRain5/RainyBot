@@ -5,6 +5,12 @@ from discord.commands.context import ApplicationContext as Context
 from lib.DatabaseManager import Database
 from random import randint
 from asyncinit import asyncinit
+from datetime import time
+
+
+MAX_GIFT_DISTANCE = 6
+MAX_ATTACK_DISTANCE = 4
+MAX_MOVE_DISTANCE = 3
 
 
 class Vector2(dict):
@@ -293,7 +299,7 @@ class EmojiGame(commands.Cog):
         targetPos = targetPlayer.position
         if ownPlayer.tokens > 0:
             if targetPlayer.alive:
-                if proximityCheck(ownPos, targetPos, 5) == True:
+                if proximityCheck(ownPos, targetPos, MAX_ATTACK_DISTANCE) == True:
                     targetPlayer.health -= 1
                     if targetPlayer.alive == False:  # If we just killed them
                         await ctx.respond(f"You have just killed {ctx.author.mention}")
@@ -314,7 +320,7 @@ class EmojiGame(commands.Cog):
             return
         ownPlayer = Player(ctx.author, self.db)
         if self.db.db["Players"][str(ctx.author.id)]["Balance"] > 0:
-            if proximityCheck(ownPlayer.position, Vector2(new_x, new_y), 2) == True:
+            if proximityCheck(ownPlayer.position, Vector2(new_x, new_y), MAX_MOVE_DISTANCE) == True:
                 ownPlayer.position = Vector2(new_x, new_y)
                 await ctx.respond(f"You have moved to x = {new_x}, y = {new_y}")
             else:
@@ -402,7 +408,6 @@ class EmojiGame(commands.Cog):
             ]
         )
         await ctx.respond(embed=embed)
-    # TODO change this to 24 hours when out of testing
 
     @EmojiGameSlashGroup.command(description="Gift someone a token!")
     async def gifttoken(self, ctx: Context, target: discord.Member):
@@ -411,7 +416,7 @@ class EmojiGame(commands.Cog):
             return
         ownPlayer = Player(ctx.author, self.db)
         targetPlayer = Player(target, self.db)
-        if proximityCheck(ownPlayer.position, targetPlayer.position, 6):
+        if proximityCheck(ownPlayer.position, targetPlayer.position, MAX_GIFT_DISTANCE):
             if ownPlayer.tokens >= 1:
                 ownPlayer.tokens -= 1
                 targetPlayer.tokens += 1
@@ -424,7 +429,43 @@ class EmojiGame(commands.Cog):
         await ctx.respond(f"You have gifted {target.display_name} a token!")
         await self.game.announce(f"{ctx.author.mention} just gifted {target.mention} a token!")
 
-    @tasks.loop(hours=0.5)
+    @EmojiGameSlashGroup.command(description="What is Emoji Game")
+    async def help(self, ctx: Context):
+        concept = "Emoji Game is an (unoriginal) virtual board game that revolves around \"Action Tokens\".\n"
+        concept += "To be able to move or attack other players, you need to spend an action token.\n"
+        concept += "One action token is given to every player every 24 hours. You can spend it, "
+        concept += "gift it to someone else, or just keep it for later!\n"
+        concept += "But do note that there is a maximum range for each action, "
+        concept += "so you cannot just attack someone from across the map.\n"
+        concept += "Due to the nature of the game, it is highly recommended to create alliences with other players...\n"
+        concept += "but can you ever trust them enough to do that?"
+
+        rules = f"The maximum amount of tiles you can move in one go is: {MAX_MOVE_DISTANCE}\n"
+        rules += f"The maximum distance you can attack from is: {MAX_ATTACK_DISTANCE}\n"
+        rules += f"The maximum distance you can gift from is: {MAX_GIFT_DISTANCE}\n"
+        rules += "Each player has 3 health, and there is no way to increase your health if you lose some.\n"
+        rules += "Dead players can vote on who should recieve a bonus Action Token next distribution\n"
+        rules += "You cannot join a game once it has started\n"
+        rules += "You do not gain any bonus Action Tokens for killing someone who is holding some\n"
+        rules += "Dead players cannot use any action tokens (ie do anything notable)\n"
+        rules += "You recieve one Action Token every day at 12 PM UTC (<t:1676203200:t> in your local timezone)"
+
+        embed = discord.Embed(
+            title="Emoji Game Info",
+            fields=[
+                discord.EmbedField(
+                    name="Concept:",
+                    value=concept
+                ),
+                discord.EmbedField(
+                    name="Rules:",
+                    value=rules
+                ),
+            ]
+        )
+        await ctx.respond(embed=embed)
+
+    @tasks.loop(time=time(12))
     async def add_tokens(self):
         await self.game.announce(
             "It's that time again! Everyone (who is still alive) just got an action token!")
