@@ -319,7 +319,48 @@ class VegetableGame(commands.Cog):
         await ctx.respond("You have joined the game!")
         await self.game.announce(f"{ctx.author.mention} Just joined the game!")
 
+    @VegetableGameSlashGroup.command(description="Get info on a particular player!")
+    async def getinfo(self, ctx, target: discord.User):
+        player = Player(target, self.db)
+        if player.health != 0:
+            fhealth = "❤️" * player.health
+        else:
+            # player has no health
+            fhealth = "Zero"
+        embed = discord.Embed(
+            title=target.name,
+            type="rich",
+            fields=[
+                discord.EmbedField(
+                    inline=True,
+                    name="Health",
+                    value=fhealth
+                ),
+                discord.EmbedField(
+                    inline=True,
+                    name="Position",
+                    value=f"**X:** {player.position.x} **Y:** {player.position.y}"
+                ),
+                discord.EmbedField(
+                    inline=True,
+                    name="Emoji",
+                    value=player.emoji
+                ),
+                discord.EmbedField(
+                    inline=True,
+                    name="Balance",
+                    value=player.tokens
+                ),
+                discord.EmbedField(
+                    inline=True,
+                    name="Alive",
+                    value=player.alive
+                )
+            ]
+        )
+        await ctx.respond(embed=embed)
     # TODO change this to 24 hours when out of testing
+
     @tasks.loop(hours=0.5)
     async def add_tokens(self):
         await self.game.announce(
