@@ -59,20 +59,32 @@ class Player():
         self._position = DictToVector2(dbPlayer["Position"])
         self.dbPlayerID = user.id
 
+    def reload(self):
+        dbPlayer = self._db.read()["Players"][str(self.dbPlayerID)]
+        self._tokens = int(dbPlayer["Balance"])
+        self._health = int(dbPlayer['Health'])
+        self._alive = bool(dbPlayer["Alive"])
+        self._emoji = str(dbPlayer["Emoji"])
+        self._position = DictToVector2(dbPlayer["Position"])
+
     def kill(self, message: str = "Died"):
         self._alive = False
         self._db.db["Players"][str(self.dbPlayerID)]["Alive"] = False
         self._health = 0
         self._db.save()
 
-    def _tokens_get(self): return self._tokens
+    def _tokens_get(self):
+        self.reload()
+        return self._tokens
 
     def _tokens_set(self, tokens: int):
         self._tokens += tokens
         self._db.db["Players"][str(self.dbPlayerID)]["Tokens"] = self._tokens
         self._db.save()
 
-    def _health_get(self): return self._health
+    def _health_get(self):
+        self.reload()
+        return self._health
 
     def _health_set(self, health: int, reason: str = ""):
         if health == 0:
@@ -83,7 +95,9 @@ class Player():
                 self.dbPlayerID)]["Health"] = self._health
             self._db.save()
 
-    def _alive_get(self): return self._alive
+    def _alive_get(self):
+        self.reload()
+        return self._alive
 
     def _alive_set(self, alive: bool):
         if alive == False:
@@ -93,7 +107,9 @@ class Player():
             self._db.db["Players"][str(self.dbPlayerID)]["Alive"] = self._alive
             self._db.save()
 
-    def _emoji_get(self): return self._emoji
+    def _emoji_get(self):
+        self.reload()
+        return self._emoji
 
     def _emoji_set(self, emoji: str):
         # TODO check to see if an emoji is valid
@@ -101,7 +117,9 @@ class Player():
         self._db.db["Players"][str(self.dbPlayerID)]["Emoji"] = self._emoji
         self._db.save()
 
-    def _position_get(self): return self._position
+    def _position_get(self):
+        self.reload()
+        return self._position
 
     def _position_set(self, newpos: Vector2):
         self._position = newpos
