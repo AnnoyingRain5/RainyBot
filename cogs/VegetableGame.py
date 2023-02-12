@@ -71,6 +71,8 @@ class Player():
         self._alive = False
         self._db.db["Players"][str(self.dbPlayerID)]["Alive"] = False
         self._health = 0
+        self._db.db["Players"][str(
+            self.dbPlayerID)]["Health"] = self._health
         self._db.save()
 
     def _tokens_get(self):
