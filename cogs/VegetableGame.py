@@ -195,29 +195,6 @@ class GameManager():
             await self._AnnounceChannel.send(announcement)
 
 
-def List2DToTable(inputlist):
-    output = ""
-    height = len(inputlist)
-    length = len(inputlist[0])
-    for y in range(height * 2 + 1):
-        for x in range(length):
-            if y % 2 == 0:  # if it is an even line
-                if x == 0:
-                    output += "+---+"
-                else:
-                    output += "---+"
-            # line is not even, show content instead
-            elif inputlist[int(y/2)][x] != "":  # cell has content
-                output += f"|{inputlist[int(y/2)][x]} "
-            else:  # cell does not have content
-                output += "|    "
-            if x == length - 1:
-                if y % 2 != 0:  # if it is an odd line
-                    output += "|"
-        output += "\n"
-    return output
-
-
 def proximityCheck(pos1: Vector2, pos2: Vector2, MaxDistance: int):
     print(pos1.x - pos2.x)
     print(pos2.x - pos1.x)
@@ -254,9 +231,25 @@ class VegetableGame(commands.Cog):
             for x in range(self.game.size.x):
                 for player in self.game.players:
                     if player.position.x == x and player.position.y == y:
-                        grid[y].append(player.emoji)
-                grid[y].append("")
-        ctx.respond(List2DToTable(grid))
+                        grid[y].append(f"{player.emoji} ")
+                        break
+                else:
+                    grid[y].append("   ")
+        # We have a grid (2d list), time for formatting
+        fgrid = ""
+        for y in grid:
+            fgrid += "-" * len(y) * 5
+            fgrid += "\n"
+            fgrid += str(y)
+            fgrid += "\n"
+        fgrid += "-" * len(grid[0]) * 5
+        fgrid += "\n"
+        fgrid = fgrid.replace(",", "|")
+        fgrid = fgrid.replace("'", "")
+        fgrid = fgrid.replace("[", "|")
+        fgrid = fgrid.replace("]", "|")
+
+        await ctx.respond(f"```py\n{fgrid}```")
 
     @VegetableGameSlashGroup.command(description="Attack another player!")
     async def attack(self, ctx, target: discord.User):
@@ -314,7 +307,8 @@ class VegetableGame(commands.Cog):
         await ctx.respond("You have joined the game!")
         await self.game.announce(f"{ctx.author.mention} Just joined the game!")
 
-    @tasks.loop(seconds=60)  # TODO change this to 24 hours when out of testing
+    # TODO change this to 24 hours when out of testing
+    @tasks.loop(hours=0.5)
     async def add_tokens(self):
         await self.game.announce(
             "It's that time again! Everyone (who is still alive) just got an action token!")
