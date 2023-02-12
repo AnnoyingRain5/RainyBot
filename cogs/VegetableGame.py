@@ -117,10 +117,11 @@ class Player():
 
 @asyncinit
 class GameManager():
-    async def __init__(self, db: Database, bot: discord.Bot):
+    async def __init__(self, db: Database, bot: discord.Bot, AddTokensTask):
         self._db = db
         self._bot = bot
         self._players = []
+        self._AddTokensTask = AddTokensTask
         if len(self._db.db) >= 1:  # ensure there is a game before starting
             dbsize = self._db.db["GameSize"]
             self._size = Vector2(dbsize["x"], dbsize["y"])
@@ -131,6 +132,8 @@ class GameManager():
                 player = await bot.fetch_user(playerID)
                 if player != None:
                     self._players.append(Player(player, db))
+            if self._active:
+                self._AddTokensTask.start()
 
         else:  # if there is no game, set all values to None or False
             self._size = None
@@ -167,8 +170,12 @@ class GameManager():
 
     def set_active(self, active: bool):
         self._active = active
-        self._db.db["GameActive"] = False
+        self._db.db["GameActive"] = self._active
         self._db.save()
+        if self._active == True:
+            self._AddTokensTask.start()
+        else:
+            self._AddTokensTask.stop()
 
     def get_AnnounceChannel(self): return self._AnnounceChannel
 
@@ -220,8 +227,7 @@ class VegetableGame(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.db = Database("VegetableGame")
-        self.game = await GameManager(self.db, self.bot)
-        self.add_tokens.start()
+        self.game = await GameManager(self.db, self.bot, self.add_tokens)
 
     @VegetableGameSlashGroup.command(description="View the current game board")
     async def viewboard(self, ctx, showownrange: bool, showallranges: bool):
@@ -300,6 +306,12 @@ class VegetableGame(commands.Cog):
         await ctx.respond("Started the game")
         await self.game.announce("The game has started! Have fun!")
 
+    @VegetableGameSlashGroup.command(description="Pause the game! (owner only)")
+    async def pausegame(self, ctx):
+        self.game.active = False
+        await ctx.respond("Stopped the game")
+        await self.game.announce("The game has been put on hold...")
+
     @VegetableGameSlashGroup.command(description="joingame")
     async def joingame(self, ctx, emoji: str):
         self.game.players.append(Player(ctx.author,
@@ -313,7 +325,6 @@ class VegetableGame(commands.Cog):
         await self.game.announce(
             "It's that time again! Everyone (who is still alive) just got an action token!")
         for player in self.game.players:
-            print(f"added token to {player}")
             if player.alive:
                 player.tokens += 1
 
