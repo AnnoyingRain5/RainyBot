@@ -8,6 +8,7 @@ from discord.ext import commands
 from discord.ext.commands import has_permissions, CheckFailure
 from lib.DatabaseManager import Database
 from httpcore._exceptions import ReadTimeout
+from discord.commands.context import ApplicationContext as SlashContext
 
 translator = googletrans.Translator()
 GuildToChannelGroupList = {}
@@ -124,7 +125,7 @@ class Translator(commands.Cog):
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Create a channel group")
     # adding a default value makes parameter optional
-    async def create(self, ctx, channel1, channel1language, channel1webhook,
+    async def create(self, ctx: SlashContext, channel1, channel1language, channel1webhook,
                      channel2, channel2language, channel2webhook, channel3=0, channel3language='', channel3webhook='',
                      channel4=0, channel4language='', channel4webhook='', channel5=0, channel5language='', channel5webhook=''):
 
@@ -141,14 +142,14 @@ class Translator(commands.Cog):
         await ctx.respond("Channel group created!")
 
     @create.error
-    async def create_error(self, ctx, error):
+    async def create_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Add a channel to a ChannelGroup")
     # adding a default value makes parameter optional
-    async def addchannel(self, ctx, groupid, channel, language, webhook):
+    async def addchannel(self, ctx: SlashContext, groupid, channel, language, webhook):
         if groupid == '0':
             await ctx.respond("Group ID cannot be 0")
             return
@@ -159,14 +160,14 @@ class Translator(commands.Cog):
         await ctx.respond("Channel added to ChannelGroup!")
 
     @addchannel.error
-    async def addchannel_error(self, ctx, error):
+    async def addchannel_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Remove a channel from a ChannelGroup")
     # adding a default value makes parameter optional
-    async def removechannel(self, ctx, groupid, channel):
+    async def removechannel(self, ctx: SlashContext, groupid, channel):
         if groupid == '0':
             await ctx.respond("Group ID cannot be 0")
             return
@@ -179,27 +180,27 @@ class Translator(commands.Cog):
         await ctx.respond("Channel removed from ChannelGroup!")
 
     @addchannel.error
-    async def removechannel_error(self, ctx, error):
+    async def removechannel_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 
     @has_permissions(administrator=True)
     @TranslatorSlashGroup.command(description="Display the server config JSON")
-    async def viewserverconfig(self, ctx):
+    async def viewserverconfig(self, ctx: SlashContext):
         await ctx.respond(f"```json\n\n{json.dumps(self.db.read()[str(ctx.guild.id)], indent=4)}\n```")
 
     @viewserverconfig.error
-    async def viewserverconfig_error(self, ctx, error):
+    async def viewserverconfig_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 
     @TranslatorSlashGroup.command(description="Learn how to use the Translator feature")
-    async def tutorial(self, ctx):
+    async def tutorial(self, ctx: SlashContext):
         await ctx.respond(f"Check out the tutorial here:\nhttps://github.com/AnnoyingRain5/RainyBot/wiki/Translator")
 
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Remove a channel group")
-    async def remove(self, ctx, channelgroupid: int):
+    async def remove(self, ctx: SlashContext, channelgroupid: int):
         if channelgroupid == 0:
             await ctx.respond("You cannot remove group ID 0! That group is reserved to ensure the bot doesn't crash...")
         else:
@@ -209,7 +210,7 @@ class Translator(commands.Cog):
             await ctx.respond("Done!")
 
     @remove.error
-    async def remove_error(self, ctx, error):
+    async def remove_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("Admininstrator permissions are required to run this command.")
 

@@ -3,6 +3,7 @@ from discord.commands import SlashCommandGroup
 from lib.DatabaseManager import Database
 from discord.ext.commands import has_permissions, CheckFailure
 from discord.channel import DMChannel
+from discord.commands.context import ApplicationContext as SlashContext
 
 
 class QuickResponse(commands.Cog):
@@ -71,34 +72,34 @@ class QuickResponse(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Add/set a phrase response", name="add")
-    async def add_phrase(self, ctx, phrase: str, response: str):
+    async def add_phrase(self, ctx: SlashContext, phrase: str, response: str):
         self.db.db[str(ctx.guild.id)]["PhraseResponses"].update(
             {phrase: response})
         self.db.save()
         await ctx.respond("Done!")
 
     @add_phrase.error
-    async def add_phrase_error(self, ctx, error):
+    async def add_phrase_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("`manage server` permissions are required to run this command.")
 
     # I know this is the second function called add, it works though...
     @has_permissions(manage_guild=True)
     @MessageQuickResponseSlashGroup.command(description="Add/set a message response", name="add")
-    async def add_msg(self, ctx, message: str, response: str):
+    async def add_msg(self, ctx: SlashContext, message: str, response: str):
         self.db.db[str(ctx.guild.id)]["MessageResponses"].update(
             {message: response})
         self.db.save()
         await ctx.respond("Done!")
 
     @add_msg.error
-    async def add_msg_error(self, ctx, error):
+    async def add_msg_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("`manage server` permissions are required to run this command.")
 
     @has_permissions(manage_guild=True)
     @MessageQuickResponseSlashGroup.command(description="Remove a message response", name="remove")
-    async def remove_msg(self, ctx, trigger: str):
+    async def remove_msg(self, ctx: SlashContext, trigger: str):
         try:
             self.db.db[str(ctx.guild.id)]["MessageResponses"].pop(trigger)
             self.db.save()
@@ -108,13 +109,13 @@ class QuickResponse(commands.Cog):
         await ctx.respond("Done!")
 
     @remove_msg.error
-    async def remove_msg_error(self, ctx, error):
+    async def remove_msg_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("`manage server` permissions are required to run this command.")
 
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Remove a phrase response", name="remove")
-    async def remove_phrase(self, ctx, trigger: str):
+    async def remove_phrase(self, ctx: SlashContext, trigger: str):
         try:
             self.db.db[str(ctx.guild.id)]["PhraseResponses"].pop(trigger)
             self.db.save()
@@ -124,7 +125,7 @@ class QuickResponse(commands.Cog):
         await ctx.respond("Done!")
 
     @remove_phrase.error
-    async def remove_phrase_error(self, ctx, error):
+    async def remove_phrase_error(self, ctx: SlashContext, error):
         if isinstance(error, CheckFailure):
             await ctx.respond("`manage server` permissions are required to run this command.")
 

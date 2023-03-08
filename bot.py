@@ -5,6 +5,7 @@ from discord.ext.commands import CheckFailure
 import sys
 import traceback
 from io import StringIO
+from discord.commands.context import ApplicationContext as SlashContext
 
 load_dotenv()  # load env vars from file
 
@@ -22,7 +23,7 @@ async def on_ready():
 
 
 @bot.slash_command(description="Load cog")
-async def load(ctx, cog: str):
+async def load(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
             bot.load_extension(f'cogs.{cog}')
@@ -34,7 +35,7 @@ async def load(ctx, cog: str):
 
 
 @bot.slash_command(description="Reload cog")
-async def unload(ctx, cog: str):
+async def unload(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
             bot.unload_extension(f'cogs.{cog}')
@@ -46,7 +47,7 @@ async def unload(ctx, cog: str):
 
 
 @bot.slash_command(description="Reload cog")
-async def reload(ctx, cog: str):
+async def reload(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
             bot.unload_extension(f'cogs.{cog}')
@@ -59,7 +60,7 @@ async def reload(ctx, cog: str):
 
 
 @bot.slash_command(description="List the cogs that are currently loaded")
-async def listcogs(ctx):
+async def listcogs(ctx: SlashContext):
     if await bot.is_owner(ctx.author):
         response = ""
         for item in bot.extensions.keys():
@@ -70,7 +71,7 @@ async def listcogs(ctx):
 
 
 @bot.slash_command(description="Ping the bot!")
-async def ping(ctx):
+async def ping(ctx: SlashContext):
     await ctx.respond(f"Pong! Bot latency is: `{round(bot.latency*1000)}ms`")
 
 
