@@ -349,6 +349,8 @@ class EmojiGame(commands.Cog):
 
     @EmojiGameSlashGroup.command(description="Prepare the game! (owner only)")
     async def preparegame(self, ctx: Context, areyousure: bool, sizex: int, sizey: int, announcements_channel: discord.TextChannel):
+        if not await self.bot.is_owner(ctx.author):
+            await ctx.respond(f"This command is only for <@!{self.bot.owner_id}>, sorry!")
         if areyousure == False:
             await ctx.respond("Please be sure before running this command, it wipes the database!")
         else:
@@ -364,12 +366,16 @@ class EmojiGame(commands.Cog):
 
     @EmojiGameSlashGroup.command(description="Start a game! (owner only)")
     async def startgame(self, ctx):
+        if not await self.bot.is_owner(ctx.author):
+            await ctx.respond(f"This command is only for <@!{self.bot.owner_id}>, sorry!")
         await self.game.announce("The game has started! Have fun!")
         self.game.active = True
         await ctx.respond("Started the game")
 
     @EmojiGameSlashGroup.command(description="Pause the game! (owner only)")
     async def pausegame(self, ctx):
+        if not await self.bot.is_owner(ctx.author):
+            await ctx.respond(f"This command is only for <@!{self.bot.owner_id}>, sorry!")
         await self.game.announce("The game has been put on hold...")
         self.game.active = False
         await ctx.respond("Stopped the game")
