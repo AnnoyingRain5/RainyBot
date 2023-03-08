@@ -128,6 +128,9 @@ class Translator(commands.Cog):
     async def create(self, ctx: SlashContext, channel1, channel1language, channel1webhook,
                      channel2, channel2language, channel2webhook, channel3=0, channel3language='', channel3webhook='',
                      channel4=0, channel4language='', channel4webhook='', channel5=0, channel5language='', channel5webhook=''):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
 
         ChannelGroup = {channel1: channel1language, channel2: channel2language,
                         channel3: channel3language, channel4: channel4language, channel5: channel5language}
@@ -150,6 +153,9 @@ class Translator(commands.Cog):
     @TranslatorChannelSlashGroup.command(description="Add a channel to a ChannelGroup")
     # adding a default value makes parameter optional
     async def addchannel(self, ctx: SlashContext, groupid, channel, language, webhook):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         if groupid == '0':
             await ctx.respond("Group ID cannot be 0")
             return
@@ -168,6 +174,9 @@ class Translator(commands.Cog):
     @TranslatorChannelSlashGroup.command(description="Remove a channel from a ChannelGroup")
     # adding a default value makes parameter optional
     async def removechannel(self, ctx: SlashContext, groupid, channel):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         if groupid == '0':
             await ctx.respond("Group ID cannot be 0")
             return
@@ -187,6 +196,9 @@ class Translator(commands.Cog):
     @has_permissions(administrator=True)
     @TranslatorSlashGroup.command(description="Display the server config JSON")
     async def viewserverconfig(self, ctx: SlashContext):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         await ctx.respond(f"```json\n\n{json.dumps(self.db.read()[str(ctx.guild.id)], indent=4)}\n```")
 
     @viewserverconfig.error
@@ -201,6 +213,9 @@ class Translator(commands.Cog):
     @has_permissions(administrator=True)
     @TranslatorChannelSlashGroup.command(description="Remove a channel group")
     async def remove(self, ctx: SlashContext, channelgroupid: int):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         if channelgroupid == 0:
             await ctx.respond("You cannot remove group ID 0! That group is reserved to ensure the bot doesn't crash...")
         else:

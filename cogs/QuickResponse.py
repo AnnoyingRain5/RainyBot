@@ -73,6 +73,9 @@ class QuickResponse(commands.Cog):
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Add/set a phrase response", name="add")
     async def add_phrase(self, ctx: SlashContext, phrase: str, response: str):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         self.db.db[str(ctx.guild.id)]["PhraseResponses"].update(
             {phrase: response})
         self.db.save()
@@ -87,6 +90,9 @@ class QuickResponse(commands.Cog):
     @has_permissions(manage_guild=True)
     @MessageQuickResponseSlashGroup.command(description="Add/set a message response", name="add")
     async def add_msg(self, ctx: SlashContext, message: str, response: str):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         self.db.db[str(ctx.guild.id)]["MessageResponses"].update(
             {message: response})
         self.db.save()
@@ -100,6 +106,9 @@ class QuickResponse(commands.Cog):
     @has_permissions(manage_guild=True)
     @MessageQuickResponseSlashGroup.command(description="Remove a message response", name="remove")
     async def remove_msg(self, ctx: SlashContext, trigger: str):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         try:
             self.db.db[str(ctx.guild.id)]["MessageResponses"].pop(trigger)
             self.db.save()
@@ -116,6 +125,9 @@ class QuickResponse(commands.Cog):
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Remove a phrase response", name="remove")
     async def remove_phrase(self, ctx: SlashContext, trigger: str):
+        if ctx.guild == None:
+            await ctx.respond(f"This command must be run in a guild.")
+            return
         try:
             self.db.db[str(ctx.guild.id)]["PhraseResponses"].pop(trigger)
             self.db.save()
