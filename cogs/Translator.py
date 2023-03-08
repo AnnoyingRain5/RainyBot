@@ -62,7 +62,7 @@ class Translator(commands.Cog):
                 if str(ctx.channel.id) in ChannelGroup:  # if the channel is in the channelGroup
                     for channel in ChannelGroup:
                         # dont send the message in its own channel, and dont send it to ID 0
-                        if channel != str(ctx.channel.id) and channel != "0":
+                        if channel != str(ctx.channel.id) and channel != 0:
                             webhook = Webhook.from_url(self.db.read()[str(
                                 ctx.guild.id)]["webhooks"][str(channel)], session=self.session)
                             # Get the attachments
@@ -79,12 +79,12 @@ class Translator(commands.Cog):
                             try:
                                 TranslatedText = translator.translate(
                                     ctx.content, DestinationLang, SourceLang).text
-                            except ReadTimeout: # give it another shot if it times out
+                            except ReadTimeout:  # give it another shot if it times out
                                 TranslatedText = translator.translate(
                                     ctx.content, DestinationLang, SourceLang).text
                             print(
                                 f"'{ctx.content}' in {SourceLang} is '{TranslatedText}' in {DestinationLang}")
-                            if ctx.author.avatar != None: # if the user has a profile picture set
+                            if ctx.author.avatar != None:  # if the user has a profile picture set
                                 await webhook.send(TranslatedText, username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
                             else:
                                 await webhook.send(TranslatedText, username=ctx.author.name, files=attachments)
@@ -116,7 +116,7 @@ class Translator(commands.Cog):
                             DestinationLang = ChannelGroup[str(channel)]
                             TranslatedText = translator.translate(
                                 f"I edited a message!\nBefore: \"{before.content}\", \n After: \"{after.content}\"", DestinationLang, SourceLang).text
-                            if after.author.avatar != None: # if the user has a profile picture set
+                            if after.author.avatar != None:  # if the user has a profile picture set
                                 await webhook.send(TranslatedText, username=after.author.name, avatar_url=after.author.avatar.url, files=attachments)
                             else:
                                 await webhook.send(TranslatedText, username=after.author.name, files=attachments)
