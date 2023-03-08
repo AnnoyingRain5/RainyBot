@@ -53,6 +53,8 @@ class QuickResponse(commands.Cog):
             return
         if isinstance(ctx.channel, DMChannel):  # ignore all messages in DMs
             return
+        if ctx.webhook_id != None:
+            return
         # message responses
         for trigger in self.db.read()[str(ctx.guild.id)]["MessageResponses"]:
             if trigger != "":
