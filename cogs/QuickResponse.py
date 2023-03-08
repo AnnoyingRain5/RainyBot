@@ -98,9 +98,13 @@ class QuickResponse(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @MessageQuickResponseSlashGroup.command(description="Remove a message response", name="remove")
-    async def remove_msg(self, ctx, message: str):
-        self.db.db[str(ctx.guild.id)]["MessageResponses"].pop(message)
-        self.db.save()
+    async def remove_msg(self, ctx, trigger: str):
+        try:
+            self.db.db[str(ctx.guild.id)]["MessageResponses"].pop(trigger)
+            self.db.save()
+        except KeyError:
+            await ctx.respond(f"Error: There isn't a message response with the trigger: `{trigger}`")
+            return
         await ctx.respond("Done!")
 
     @remove_msg.error
@@ -110,9 +114,13 @@ class QuickResponse(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Remove a phrase response", name="remove")
-    async def remove_phrase(self, ctx, phrase: str):
-        self.db.db[str(ctx.guild.id)]["PhraseResponses"].pop(phrase)
-        self.db.save()
+    async def remove_phrase(self, ctx, trigger: str):
+        try:
+            self.db.db[str(ctx.guild.id)]["PhraseResponses"].pop(trigger)
+            self.db.save()
+        except KeyError:
+            await ctx.respond(f"Error: There isn't a phrase response with the trigger: `{trigger}`")
+            return
         await ctx.respond("Done!")
 
     @remove_phrase.error
