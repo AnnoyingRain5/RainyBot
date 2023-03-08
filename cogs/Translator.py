@@ -62,7 +62,7 @@ class Translator(commands.Cog):
                 if str(ctx.channel.id) in ChannelGroup:  # if the channel is in the channelGroup
                     for channel in ChannelGroup:
                         # dont send the message in its own channel, and dont send it to ID 0
-                        if channel != str(ctx.channel.id) and channel != 0:
+                        if channel != str(ctx.channel.id) and channel != "0":
                             webhook = Webhook.from_url(self.db.read()[str(
                                 ctx.guild.id)]["webhooks"][str(channel)], session=self.session)
                             # Get the attachments
