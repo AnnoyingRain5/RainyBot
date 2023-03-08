@@ -87,8 +87,8 @@ async def info(ctx):
     latest = os.popen(
         "git ls-remote --refs --tags | tail --lines=1 | cut --delimiter='/' --fields=3").read().strip("\n")
 
-    embed = discord.Embed(
-        title="Bot Info", description=f"Hi!\n I'm {info.name}, ")
+    embed = discord.Embed(title="Bot Info")
+    embed.description = f"Hi!\n I'm {info.name}, "
     if info.id == 1018460858625572924:  # if the bot is the official bot
         embed.description += "the official hosted version of RainyBot!\n"
     else:  # if this is either a self hosted bot or a fork
