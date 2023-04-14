@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from discord.ext.commands import CheckFailure
 import sys
 import traceback
+from requests import get
 from io import StringIO
 from discord.commands.context import ApplicationContext as SlashContext
 
@@ -66,6 +67,15 @@ async def listcogs(ctx: SlashContext):
         for item in bot.extensions.keys():
             response += item + ", "
         await ctx.respond(response)
+    else:
+        await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
+
+
+@bot.slash_command(description="List the cogs that are currently loaded")
+async def get_ip(ctx: SlashContext):
+    if await bot.is_owner(ctx.author):
+        ip = get("https://api.ipify.org").text
+        await ctx.respond(ip, ephemeral=True)
     else:
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
