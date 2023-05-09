@@ -72,7 +72,7 @@ class Translator(commands.Cog):
                                 attachments.append(await attachment.to_file())
                             # if the message is empty (only attachments)
                             if ctx.content == "":
-                                await webhook.send(content="", username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
+                                await webhook.send(content="attachments:", username=ctx.author.name, avatar_url=ctx.author.avatar.url, files=attachments)
                             # language of the channel the original message was in
                             SourceLang = ChannelGroup[str(ctx.channel.id)]
                             # language of the current channel in the ChannelGroup
