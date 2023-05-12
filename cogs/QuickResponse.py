@@ -4,6 +4,7 @@ from lib.DatabaseManager import Database
 from discord.ext.commands import has_permissions, CheckFailure
 from discord.channel import DMChannel
 from discord.commands.context import ApplicationContext as SlashContext
+from discord.errors import Forbidden
 
 
 class QuickResponse(commands.Cog):
@@ -61,14 +62,20 @@ class QuickResponse(commands.Cog):
             if trigger != "":
                 if trigger.lower() == ctx.content.lower():
                     # send the response from the guild's responses
-                    await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["MessageResponses"][trigger])
+                    try:
+                        await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["MessageResponses"][trigger])
+                    except Forbidden:
+                        pass
 
         # phrase responses
         for trigger in self.db.read()[str(ctx.guild.id)]["PhraseResponses"]:
             if trigger != "":
                 if trigger in ctx.content:
                     # send the response from the guild's responses
-                    await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["PhraseResponses"][trigger])
+                    try:
+                        await ctx.channel.send(self.db.read()[str(ctx.guild.id)]["PhraseResponses"][trigger])
+                    except Forbidden:
+                        pass
 
     @has_permissions(manage_guild=True)
     @PhraseQuickResponseSlashGroup.command(description="Add/set a phrase response", name="add")
