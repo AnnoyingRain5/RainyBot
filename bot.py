@@ -19,7 +19,7 @@ bot = discord.Bot(intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'We have logged in as {bot.user}')
+    print(f"We have logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="with Rains' emotions!"))
 
 
@@ -27,7 +27,7 @@ async def on_ready():
 async def load(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
-            bot.load_extension(f'cogs.{cog}')
+            bot.load_extension(f"cogs.{cog}")
             await ctx.respond(f"Loaded cog `{cog}`!")
         except:
             await ctx.respond(f"Failed to load cog `{cog}`...")
@@ -39,7 +39,7 @@ async def load(ctx: SlashContext, cog: str):
 async def unload(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
-            bot.unload_extension(f'cogs.{cog}')
+            bot.unload_extension(f"cogs.{cog}")
             await ctx.respond(f"Unloaded cog `{cog}`!")
         except:
             await ctx.respond(f"Failed to unload cog `{cog}`...")
@@ -51,8 +51,8 @@ async def unload(ctx: SlashContext, cog: str):
 async def reload(ctx: SlashContext, cog: str):
     if await bot.is_owner(ctx.author):
         try:
-            bot.unload_extension(f'cogs.{cog}')
-            bot.load_extension(f'cogs.{cog}')
+            bot.unload_extension(f"cogs.{cog}")
+            bot.load_extension(f"cogs.{cog}")
             await ctx.respond(f"Reloaded cog `{cog}`!")
         except:
             await ctx.respond(f"Failed to unload cog `{cog}`...")
@@ -71,7 +71,7 @@ async def listcogs(ctx: SlashContext):
         await ctx.respond(f"You are not <@!{bot.owner_id}>, nice try though.")
 
 
-@bot.slash_command(description="List the cogs that are currently loaded")
+@bot.slash_command(description="Get's the server's IP address, bot owner only")
 async def get_ip(ctx: SlashContext):
     if await bot.is_owner(ctx.author):
         ip = get("https://api.ipify.org").text
@@ -94,15 +94,22 @@ async def github(ctx):
 async def info(ctx):
     info = await bot.application_info()
     version = os.popen("git describe --tags --abbrev=0").read().strip("\n")
-    latest = os.popen(
-        "git ls-remote --refs --tags | tail --lines=1 | cut --delimiter='/' --fields=3").read().strip("\n")
+    latest = (
+        os.popen(
+            "git ls-remote --refs --tags | tail --lines=1 | cut --delimiter='/' --fields=3"
+        )
+        .read()
+        .strip("\n")
+    )
 
     embed = discord.Embed(title="Bot Info")
     embed.description = f"Hi!\n I'm {info.name}, "
     if info.id == 1018460858625572924:  # if the bot is the official bot
         embed.description += "the official hosted version of RainyBot!\n"
     else:  # if this is either a self hosted bot or a fork
-        if info.name == "RainyBot":  # if the name is the same as the official version, assume it's a self-hosted instance
+        if (
+            info.name == "RainyBot"
+        ):  # if the name is the same as the official version, assume it's a self-hosted instance
             embed.description += "I appear to be a self hosted version of the official bot, which is great!\n"
         else:  # if the name is different, assume it's a fork
             embed.description += f"or at least that's what {info.owner.name} called me.\n I'm actually RainyBot, a bot made by AnnoyingRains.\n "
@@ -120,11 +127,12 @@ async def info(ctx):
 
     await ctx.respond(embed=embed)
 
+
 # load all cogs
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
         # remove file extension and load cog
-        bot.load_extension(f'cogs.{filename[:-3]}')
+        bot.load_extension(f"cogs.{filename[:-3]}")
 
 
 # Global command error handler
@@ -132,14 +140,18 @@ for filename in os.listdir('./cogs'):
 async def on_application_command_error(ctx, error):
     # Check failures should be handled by the individual cogs, not here.
     if not isinstance(error, CheckFailure):
-        await ctx.send(f"An error occured and has been automatically reported to the developer. Error: `{error}`")
+        await ctx.send(
+            f"An error occured and has been automatically reported to the developer. Error: `{error}`"
+        )
         info = await bot.application_info()
         sio = StringIO()
         # traceback requires a file-like object, so we use StringIO to get the traceback as a string
         traceback.print_exception(error, file=sio, limit=4)
         tb = sio.getvalue()  # get the string from the StringIO object
         message = f"An error occurred in {ctx.guild.name} ({ctx.guild.id}) in {ctx.channel.name} ({ctx.channel.mention}) by {ctx.author.name} ({ctx.author.mention})\n"
-        message += f"Error: `{error}`\n The traceback will be supplied in the next message."
+        message += (
+            f"Error: `{error}`\n The traceback will be supplied in the next message."
+        )
         await info.owner.send(message)
         await info.owner.send(f"```py\n{tb}```")
 
@@ -158,4 +170,4 @@ async def on_error(event, *args, **kwargs):
     await info.owner.send(f"```py\n{tb}```")
 
 
-bot.run(os.getenv('TOKEN'))
+bot.run(os.getenv("TOKEN"))
